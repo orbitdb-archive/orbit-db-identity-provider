@@ -22,6 +22,11 @@ class IdentityProvider {
     return new Identity(id, publicKey, pkSignature, signature, this)
   }
 
+  static async createIdentity (keystore, id, identitySignerFn) {
+    const identityProvider = new IdentityProvider(keystore)
+    return await identityProvider.createIdentity(id, identitySignerFn)
+  }
+
   static async verifyIdentity (identity, verifierFunction) {
     return verifierFunction(identity.publicKey + identity.pkSignature, identity.signature) === identity.id
   }
