@@ -11,9 +11,8 @@ class IdentityProvider {
   }
 
   async createIdentity(id, signingFunction) {
-    const key = this._keystore.hasKey(id)
-      ? await this._keystore.getKey(id)
-      : await this._keystore.createKey(id)
+    const key = await this._keystore.getKey(id)
+      || await this._keystore.createKey(id)
 
     const pkSignature = await this._keystore.sign(key, id) // sign the id with the signing key we're going to use
     const publicKey = key.getPublic('hex')
