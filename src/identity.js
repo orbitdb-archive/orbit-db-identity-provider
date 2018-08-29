@@ -11,6 +11,10 @@ class Identity {
       throw new Error('Invalid public key')
     }
 
+    if (!isDefined(pkSignature)) {
+      throw new Error('Signature of the id (pkSignature) is required')
+    }
+
     if (!isDefined(signature)) {
       throw new Error('Signature is required')
     }
