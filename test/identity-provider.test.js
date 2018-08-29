@@ -11,7 +11,7 @@ const savedKeysPath = path.resolve('./test/fixtures/keys')
 const testKeysPath = path.resolve('./test/keys')
 let keystore
 
-describe('OrbitDB Identity Provider', function() {
+describe('Identity Provider', function() {
   keystore = Keystore.create(testKeysPath)
   const identitySignerFn = async (id, data) => {
     const key = await keystore.getKey(id)
@@ -142,8 +142,8 @@ describe('OrbitDB Identity Provider', function() {
 
     it('throws an error if private key is not found from keystore', async () => {
       // Remove the key from the keystore (we're using a mock storage in these tests)
-      const modifiedIdentity = new Identity('this id does not exist', identity.publicKey, null, identity.signature, identity.provider)
-      
+      const modifiedIdentity = new Identity('this id does not exist', identity.publicKey, '<sig>', identity.signature, identity.provider)
+
       let err
       try {
         const signature = await identity.provider.sign(modifiedIdentity, data, keystore)
