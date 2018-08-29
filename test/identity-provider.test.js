@@ -12,10 +12,13 @@ const testKeysPath = path.resolve('./test/keys')
 let keystore
 
 describe('Identity Provider', function() {
-  keystore = Keystore.create(testKeysPath)
   const identitySignerFn = async (id, data) => {
     const key = await keystore.getKey(id)
     return await keystore.sign(key, data)
+  }
+
+  const identityVerifierFn = async (identity) => {
+    return await keystore.verify(identity.signature, identity.publicKey, identity.publicKey + identity.pkSignature)
   }
 
   before(() => {
@@ -27,6 +30,18 @@ describe('Identity Provider', function() {
   after(() => {
     // Remove stored keys
     rmrf.sync(testKeysPath)
+  })
+
+  describe('constructor', () => {
+    it('throws and error if keystore is not given as a constructor argument', async () => {
+      let err
+      try {
+        identity = new IdentityProvider()
+      } catch (e) {
+        err = e
+      }
+      assert.equal(err, "Error: Keystore is required")
+    })
   })
 
   describe('create an identity', () => {
@@ -67,6 +82,23 @@ describe('Identity Provider', function() {
         const signature = await keystore.sign(signingKey, identity.publicKey + idSignature)
         assert.equal(identity.signature, signature)
       })
+
+      it('defaults to Keystore.sign as default identity signer', async () => {
+        savedKeysKeystore = Keystore.create(savedKeysPath)
+
+        const expectedPublicKey = '0474eee0310cd3ea85528c0305e7ab39f410437eebaf794bddbac97869d82f0abbfc7089c6a41a3ed7e3343831c264b18003454042788e5af7aca5684ff225f78c'
+        const expectedPkSignature = '3045022100b76e40b9aaf005eedc76703ad5a22753f0bfe244f4b4c63fd0082141cf69b11d0220328ac530ef665cf2619e85e5e39c15f8e8c7856b2f56c7a10863fc09407e7919'
+        const expectedSignature = '3046022100f07c401bf4f598f41042bb34b45f311b942cafe46890a753eee27dcd5e85d565022100f0755c52cfcfc94a97858768ba07de71bbc4637e02ef886db9843f3aba80b610'
+        const identitySignerFn = (key, data) => {
+          return expectedSignature
+        }
+
+        identity = await IdentityProvider.createIdentity(savedKeysKeystore, id)
+        assert.equal(identity.id, id)
+        assert.equal(identity.publicKey, expectedPublicKey)
+        assert.equal(identity.pkSignature, expectedPkSignature)
+        assert.equal(identity.signature, expectedSignature)
+      })
     })
 
     describe('create an identity with saved keys', () => {
@@ -94,10 +126,30 @@ describe('Identity Provider', function() {
         assert.equal(identity.publicKey, expectedPublicKey)
       })
 
+      it('has the correct pkSignature', async () => {
+        const expectedPkSignature = "3045022100b76e40b9aaf005eedc76703ad5a22753f0bfe244f4b4c63fd0082141cf69b11d0220328ac530ef665cf2619e85e5e39c15f8e8c7856b2f56c7a10863fc09407e7919"
+        const signingKey = await savedKeysKeystore.getKey(id)
+        const pkSignature = await keystore.sign(signingKey, id)
+        assert.equal(pkSignature, expectedPkSignature)
+      })
+
+      it('has the correct public key', async () => {
+        const signingKey = await savedKeysKeystore.getKey(id)
+        assert.equal(identity.publicKey, expectedPublicKey)
+      })
+
       it('has a signature for the publicKey', async () => {
         const signingKey = await savedKeysKeystore.getKey(id)
         const signature = await savedKeysKeystore.sign(signingKey, identity.publicKey + identity.pkSignature)
         assert.equal(identity.signature, signature)
+      })
+
+      it('has the correct signature', async () => {
+        const expectedSignature = "0474eee0310cd3ea85528c0305e7ab39f410437eebaf794bddbac97869d82f0abbfc7089c6a41a3ed7e3343831c264b18003454042788e5af7aca5684ff225f78c"
+        const signingKey = await savedKeysKeystore.getKey(id)
+        const pkSignature = await keystore.sign(signingKey, id)
+        const signature = await keystore.sign(signingKey, signingKey.getPublic('hex') + pkSignature)
+        assert.equal(identity.publicKey, expectedSignature)
       })
     })
   })
@@ -105,6 +157,12 @@ describe('Identity Provider', function() {
   describe('verify identity\'s signature', () => {
     const id = 'QmFoo'
     let identity
+
+    it('identity pkSignature verifies', async () => {
+      identity = await IdentityProvider.createIdentity(keystore, id, identitySignerFn)
+      const verified = await keystore.verify(identity.pkSignature, identity.publicKey, id)
+      assert.equal(verified, true)
+    })
 
     it('identity signature verifies', async () => {
       identity = await IdentityProvider.createIdentity(keystore, id, identitySignerFn)
@@ -121,6 +179,19 @@ describe('Identity Provider', function() {
       const data = identity.publicKey + identity.pkSignature
       const verified = await keystore.verify(identity.signature, identity.publicKey, data)
       assert.equal(verified, false)
+    })
+
+  })
+
+  describe('verify identity', () => {
+    const id = 'QmFoo'
+    let identity
+
+    it('identity verifies', async () => {
+      identity = await IdentityProvider.createIdentity(keystore, id, identitySignerFn)
+      const data = identity.publicKey + identity.pkSignature
+      const verified = await IdentityProvider.verifyIdentity(identity, identityVerifierFn)
+      assert.equal(verified, true)
     })
   })
 
@@ -154,7 +225,7 @@ describe('Identity Provider', function() {
     })
   })
 
-  describe('verify a signature', () => {
+  describe('verify data signed by an identity', () => {
     const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'
     const data = 'hello friend'
     let identity

@@ -5,7 +5,7 @@ const Identity = require('./identity')
 class IdentityProvider {
   constructor (keystore) {
     if (!isDefined(keystore)) {
-      throw new Error('Signing function is invalid')
+      throw new Error('Keystore is required')
     }
     this._keystore = keystore
   }
@@ -34,7 +34,7 @@ class IdentityProvider {
   }
 
   static async verifyIdentity (identity, verifierFunction) {
-    return verifierFunction(identity.publicKey + identity.pkSignature, identity.signature) === identity.id
+    return verifierFunction(identity)
   }
 
   async sign (identity, data) {
