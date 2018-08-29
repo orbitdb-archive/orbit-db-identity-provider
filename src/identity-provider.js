@@ -10,14 +10,21 @@ class IdentityProvider {
     this._keystore = keystore
   }
 
-  async createIdentity(id, signingFunction) {
-    const key = await this._keystore.getKey(id)
-      || await this._keystore.createKey(id)
-
-    const pkSignature = await this._keystore.sign(key, id) // sign the id with the signing key we're going to use
+  async createIdentity(id, identitySignerFn) {
+    // Get the key for id from the keystore or create one
+    // if it doesn't exist
+    const key = await this._keystore.getKey(id) ||
+      await this._keystore.createKey(id)
+    // Sign with the key for the id
+    const selfSigningFn = async (id, data) => await this._keystore.sign(key, data)
+    // If signing function was not passed, use keystore as the identity signer
+    identitySignerFn = isDefined(identitySignerFn) ? identitySignerFn : selfSigningFn
+    // Sign the id with the signing key we're going to use
+    const pkSignature = await this._keystore.sign(key, id)
+    // Get the hex string of the public key
     const publicKey = key.getPublic('hex')
-    const signature = await signingFunction(publicKey + pkSignature) // sign both the key and the signature created with that key
-
+    // Sign both the key and the signature created with that key
+    const signature = await identitySignerFn(id, publicKey + pkSignature)
     return new Identity(id, publicKey, pkSignature, signature, this)
   }
 
