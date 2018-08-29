@@ -1,3 +1,5 @@
+'use strict'
+
 const assert = require('assert')
 const path = require('path')
 const rmrf = require('rimraf')
@@ -84,7 +86,7 @@ describe('Identity Provider', function() {
       })
 
       it('defaults to Keystore.sign as default identity signer', async () => {
-        savedKeysKeystore = Keystore.create(savedKeysPath)
+        let savedKeysKeystore = Keystore.create(savedKeysPath)
 
         const expectedPublicKey = '0474eee0310cd3ea85528c0305e7ab39f410437eebaf794bddbac97869d82f0abbfc7089c6a41a3ed7e3343831c264b18003454042788e5af7aca5684ff225f78c'
         const expectedPkSignature = '3045022100b76e40b9aaf005eedc76703ad5a22753f0bfe244f4b4c63fd0082141cf69b11d0220328ac530ef665cf2619e85e5e39c15f8e8c7856b2f56c7a10863fc09407e7919'
