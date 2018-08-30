@@ -25,11 +25,12 @@ describe('Identity', function() {
   const pkSignature = 'signature for <id>'
   const signature = 'signature for <pkSignature + publicKey>'
   const provider = 'IdentityProviderInstance'
+  const type = 'odb'
 
   let identity
 
   before(async () => {
-    identity = new Identity(id, publicKey, pkSignature, signature, provider)
+    identity = new Identity(id, publicKey, pkSignature, signature, provider, type)
   })
 
   it('has the correct id', async () => {
@@ -57,7 +58,8 @@ describe('Identity', function() {
       id: id,
       publicKey: publicKey,
       pkSignature: pkSignature,
-      signature: signature      
+      signature: signature,
+      type: type
     }
     assert.deepEqual(identity.toJSON(), expected)
   })

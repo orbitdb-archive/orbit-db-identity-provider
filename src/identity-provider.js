@@ -1,6 +1,7 @@
 'use strict'
 const isDefined = require('./is-defined')
 const Identity = require('./identity')
+const defaultType = 'odb'
 
 class IdentityProvider {
   constructor (keystore) {
@@ -10,7 +11,7 @@ class IdentityProvider {
     this._keystore = keystore
   }
 
-  async createIdentity(id, identitySignerFn) {
+  async createIdentity(id, identitySignerFn, type) {
     // Get the key for id from the keystore or create one
     // if it doesn't exist
     const key = await this._keystore.getKey(id) ||
@@ -19,18 +20,20 @@ class IdentityProvider {
     const selfSigningFn = async (id, data) => await this._keystore.sign(key, data)
     // If signing function was not passed, use keystore as the identity signer
     identitySignerFn = isDefined(identitySignerFn) ? identitySignerFn : selfSigningFn
+    // If no type was indicated, set to default
+    type = isDefined(type) ? type : defaultType
     // Sign the id with the signing key we're going to use
     const pkSignature = await this._keystore.sign(key, id)
     // Get the hex string of the public key
     const publicKey = key.getPublic('hex')
     // Sign both the key and the signature created with that key
     const signature = await identitySignerFn(id, publicKey + pkSignature)
-    return new Identity(id, publicKey, pkSignature, signature, this)
+    return new Identity(id, publicKey, pkSignature, signature, this, type)
   }
 
-  static async createIdentity (keystore, id, identitySignerFn) {
+  static async createIdentity (keystore, id, identitySignerFn, type) {
     const identityProvider = new IdentityProvider(keystore)
-    return await identityProvider.createIdentity(id, identitySignerFn)
+    return await identityProvider.createIdentity(id, identitySignerFn, type)
   }
 
   static async verifyIdentity (identity, verifierFunction) {

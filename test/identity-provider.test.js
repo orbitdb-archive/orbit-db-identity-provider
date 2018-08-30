@@ -214,7 +214,7 @@ describe('Identity Provider', function() {
 
     it('throws an error if private key is not found from keystore', async () => {
       // Remove the key from the keystore (we're using a mock storage in these tests)
-      const modifiedIdentity = new Identity('this id does not exist', identity.publicKey, '<sig>', identity.signature, identity.provider)
+      const modifiedIdentity = new Identity('this id does not exist', identity.publicKey, '<sig>', identity.signature, identity.provider, identity.type)
 
       let err
       try {
