@@ -191,7 +191,6 @@ describe('Identity Provider', function() {
 
     it('identity verifies', async () => {
       identity = await IdentityProvider.createIdentity(keystore, id, identitySignerFn)
-      const data = identity.publicKey + identity.pkSignature
       const verified = await IdentityProvider.verifyIdentity(identity, identityVerifierFn)
       assert.equal(verified, true)
     })
