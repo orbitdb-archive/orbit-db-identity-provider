@@ -8,7 +8,7 @@ const LocalStorage = require('node-localstorage').LocalStorage
 const Keystore = require('orbit-db-keystore')
 const IdentityProvider = require('../src/identity-provider')
 const Identity = require('../src/identity')
-
+const { Wallet } = require('ethers')
 const savedKeysPath = path.resolve('./test/fixtures/keys')
 const testKeysPath = path.resolve('./test/keys')
 let keystore
@@ -249,6 +249,37 @@ describe('Identity Provider', function() {
 
     it('doesn\'t verify invalid signature', async () => {
       const verified = await identity.provider.verify('invalid', identity.publicKey, data, keystore)
+      assert.equal(verified, false)
+    })
+  })
+
+  describe('verify identity created with ethers wallet', () => {
+    let identity
+    let wallet
+    let privKey = '0x3141592653589793238462643383279502884197169399375105820974944592'
+
+    const identitySignerFn = async (id, data) => {
+      return await wallet.signMessage(data)
+    }
+
+    const identityVerifierFn = async (identity) => {
+      const signerAddress = Wallet.verifyMessage(identity.publicKey + identity.pkSignature, identity.signature)
+      return (signerAddress === identity.id)
+    }
+
+    before(async () => {
+      wallet = new Wallet(privKey)
+      identity = await IdentityProvider.createIdentity(keystore, wallet.address, identitySignerFn)
+    })
+
+    it('ethers identity verifies', async () => {
+      const verified = await IdentityProvider.verifyIdentity(identity, identityVerifierFn)
+      assert.equal(verified, true)
+    })
+
+    it('ethers identity with incorrect id does not verify', async () => {
+      let identity2 = await IdentityProvider.createIdentity(keystore, 'NotWalletAddress', identitySignerFn)
+      const verified = await IdentityProvider.verifyIdentity(identity2, identityVerifierFn)
       assert.equal(verified, false)
     })
   })
