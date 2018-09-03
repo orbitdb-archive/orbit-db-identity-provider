@@ -1,7 +1,7 @@
 'use strict'
 const isDefined = require('./is-defined')
 const Identity = require('./identity')
-const defaultType = 'odb'
+const defaultType = 'orbitdb'
 
 class IdentityProvider {
   constructor (keystore) {
