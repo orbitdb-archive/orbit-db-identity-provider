@@ -2,7 +2,7 @@
 const isDefined = require('./is-defined')
 
 class Identity {
-  constructor (id, publicKey, pkSignature, signature, provider, type) {
+  constructor (id, publicKey, pkSignature, signature, type, provider) {
     if (!isDefined(id)) {
       throw new Error('Identity id is required')
     }
@@ -19,12 +19,12 @@ class Identity {
       throw new Error('Signature is required')
     }
 
+    if (!isDefined(type)) {
+      throw new Error('Identity type is required')
+    }
+
     if (!isDefined(provider)) {
       throw new Error('Identity provider is required')
-    }
-    
-    if (!isDefined(type)) {
-      throw new Error('Type of identity is required')
     }
 
     this._id = id
@@ -68,8 +68,8 @@ class Identity {
       id: this._id,
       publicKey: this._publicKey,
       pkSignature: this._pkSignature,
-      type: this._type,
-      signature: this._signature
+      signature: this._signature,
+      type: this._type
     }
   }
 }

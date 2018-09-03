@@ -28,7 +28,7 @@ class IdentityProvider {
     const publicKey = key.getPublic('hex')
     // Sign both the key and the signature created with that key
     const signature = await identitySignerFn(id, publicKey + pkSignature)
-    return new Identity(id, publicKey, pkSignature, signature, this, type)
+    return new Identity(id, publicKey, pkSignature, signature, type, this)
   }
 
   static async createIdentity (keystore, id, identitySignerFn, type) {

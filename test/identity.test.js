@@ -24,13 +24,13 @@ describe('Identity', function() {
   const publicKey = '<pubkey>'
   const pkSignature = 'signature for <id>'
   const signature = 'signature for <pkSignature + publicKey>'
-  const provider = 'IdentityProviderInstance'
   const type = 'odb'
+  const provider = 'IdentityProviderInstance'
 
   let identity
 
   before(async () => {
-    identity = new Identity(id, publicKey, pkSignature, signature, provider, type)
+    identity = new Identity(id, publicKey, pkSignature, signature, type, provider)
   })
 
   it('has the correct id', async () => {
@@ -108,11 +108,21 @@ describe('Identity', function() {
     it('throws and error if identity provider was not given in constructor', async () => {
       let err
       try {
-        identity = new Identity('abc', publicKey, pkSignature, signature)
+        identity = new Identity('abc', publicKey, pkSignature, signature, type)
       } catch (e) {
         err = e
       }
       assert.equal(err, "Error: Identity provider is required")
+    })
+
+    it('throws and error if identity type was not given in constructor', async () => {
+      let err
+      try {
+        identity = new Identity('abc', publicKey, pkSignature, signature, null, provider)
+      } catch (e) {
+        err = e
+      }
+      assert.equal(err, "Error: Identity type is required")
     })
   })
 })
