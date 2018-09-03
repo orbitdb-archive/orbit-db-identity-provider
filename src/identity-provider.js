@@ -23,12 +23,12 @@ class IdentityProvider {
     // If no type was indicated, set to default
     type = isDefined(type) ? type : defaultType
     // Sign the id with the signing key we're going to use
-    const pkSignature = await this._keystore.sign(key, id)
+    const idSignature = await this._keystore.sign(key, id)
     // Get the hex string of the public key
     const publicKey = key.getPublic('hex')
     // Sign both the key and the signature created with that key
-    const signature = await identitySignerFn(id, publicKey + pkSignature)
-    return new Identity(id, publicKey, pkSignature, signature, type, this)
+    const pubKeyIdSignature = await identitySignerFn(id, publicKey + idSignature)
+    return new Identity(id, publicKey, idSignature, pubKeyIdSignature, type, this)
   }
 
   static async createIdentity (keystore, id, identitySignerFn, type) {
