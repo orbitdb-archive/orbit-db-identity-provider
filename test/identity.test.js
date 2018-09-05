@@ -22,14 +22,15 @@ describe('Identity', function() {
 
   const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'
   const publicKey = '<pubkey>'
-  const pkSignature = 'signature for <id>'
-  const signature = 'signature for <pkSignature + publicKey>'
+  const idSignature = 'signature for <id>'
+  const publicKeyAndIdSignature = 'signature for <publicKey + idSignature>'
+  const type = 'orbitdb'
   const provider = 'IdentityProviderInstance'
 
   let identity
 
   before(async () => {
-    identity = new Identity(id, publicKey, pkSignature, signature, provider)
+    identity = new Identity(id, publicKey, idSignature, publicKeyAndIdSignature, type, provider)
   })
 
   it('has the correct id', async () => {
@@ -40,12 +41,12 @@ describe('Identity', function() {
     assert.equal(identity.publicKey, publicKey)
   })
 
-  it('has the correct pkSignature', async () => {
-    assert.equal(identity.pkSignature, pkSignature)
+  it('has the correct idSignature', async () => {
+    assert.equal(identity.signatures.id, idSignature)
   })
 
-  it('has the correct signature', async () => {
-    assert.equal(identity.signature, signature)
+  it('has the correct publicKeyAndIdSignature', async () => {
+    assert.equal(identity.signatures.publicKey, publicKeyAndIdSignature)
   })
 
   it('has the correct provider', async () => {
@@ -56,8 +57,8 @@ describe('Identity', function() {
     const expected = {
       id: id,
       publicKey: publicKey,
-      pkSignature: pkSignature,
-      signature: signature      
+      signatures: { id: idSignature, publicKey: publicKeyAndIdSignature },
+      type: type
     }
     assert.deepEqual(identity.toJSON(), expected)
   })
@@ -90,27 +91,37 @@ describe('Identity', function() {
       } catch (e) {
         err = e
       }
-      assert.equal(err, "Error: Signature of the id (pkSignature) is required")
+      assert.equal(err, "Error: Signature of the id (idSignature) is required")
     })
 
     it('throws and error if identity signature was not given in constructor', async () => {
       let err
       try {
-        identity = new Identity('abc', publicKey, pkSignature)
+        identity = new Identity('abc', publicKey, idSignature)
       } catch (e) {
         err = e
       }
-      assert.equal(err, "Error: Signature is required")
+      assert.equal(err, "Error: Signature of (publicKey + idSignature) is required")
     })
 
     it('throws and error if identity provider was not given in constructor', async () => {
       let err
       try {
-        identity = new Identity('abc', publicKey, pkSignature, signature)
+        identity = new Identity('abc', publicKey, idSignature, publicKeyAndIdSignature, type)
       } catch (e) {
         err = e
       }
       assert.equal(err, "Error: Identity provider is required")
+    })
+
+    it('throws and error if identity type was not given in constructor', async () => {
+      let err
+      try {
+        identity = new Identity('abc', publicKey, idSignature, publicKeyAndIdSignature, null, provider)
+      } catch (e) {
+        err = e
+      }
+      assert.equal(err, "Error: Identity type is required")
     })
   })
 })
