@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "lint": "./node_modules/eslint/bin/eslint.js src/"
+    "lint": "eslint src/"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,7 @@
   },
   "homepage": "https://github.com/orbitdb/orbit-db-identity-provider#readme",
   "devDependencies": {
-    "eslint": "^5.2.0",
-    "@orbitdb/eslint-config-orbitdb": "orbitdb/eslint-config-orbitdb#feat/self-standing",
+    "@orbitdb/lint": "haadcode/orbitdb-lint",
     "ethers": "^3.0.27",
     "mkdirp": "^0.5.1",
     "mocha": "^5.2.0",
