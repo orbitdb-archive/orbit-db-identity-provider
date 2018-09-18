@@ -53,7 +53,7 @@ describe('Identity Provider', function() {
       let identity
 
       before(async () => {
-        identity = await IdentityProvider.createIdentity(keystore, id, type, identitySignerFn)
+        identity = await IdentityProvider.createIdentity(keystore, id, { type, identitySignerFn })
       })
 
       it('has the correct id', async () => {
@@ -110,14 +110,14 @@ describe('Identity Provider', function() {
 
       let savedKeysKeystore
       let identity
-
       before(async () => {
+
         savedKeysKeystore = Keystore.create(savedKeysPath)
         const identitySignerFn = async (id, data) => {
           const key = await savedKeysKeystore.getKey(id)
           return await savedKeysKeystore.sign(key, data)
         }
-        identity = await IdentityProvider.createIdentity(savedKeysKeystore, id, type, identitySignerFn)
+        identity = await IdentityProvider.createIdentity(savedKeysKeystore, id, { type, identitySignerFn })
       })
 
       it('has the correct id', async () => {
@@ -169,13 +169,13 @@ describe('Identity Provider', function() {
     let identity
 
     it('identity pkSignature verifies', async () => {
-      identity = await IdentityProvider.createIdentity(keystore, id, type, identitySignerFn)
+      identity = await IdentityProvider.createIdentity(keystore, id, { type, identitySignerFn })
       const verified = await keystore.verify(identity.signatures.id, identity.publicKey, id)
       assert.equal(verified, true)
     })
 
     it('identity signature verifies', async () => {
-      identity = await IdentityProvider.createIdentity(keystore, id, identitySignerFn)
+      identity = await IdentityProvider.createIdentity(keystore, id, { type, identitySignerFn })
       const data = identity.publicKey + identity.signatures.id
       const verified = await keystore.verify(identity.signatures.publicKey, identity.publicKey, data)
       assert.equal(verified, true)
@@ -185,7 +185,7 @@ describe('Identity Provider', function() {
       const signer = {
         sign: (key, data) => `false signature '${data}'`
       }
-      identity = await IdentityProvider.createIdentity(keystore, id, type, signer.sign)
+      identity = await IdentityProvider.createIdentity(keystore, id, { type, identitySignerFn: signer.sign })
       const data = identity.publicKey + identity.pkSignature
       const verified = await keystore.verify(identity.signatures, identity.publicKey, data)
       assert.equal(verified, false)
@@ -198,7 +198,7 @@ describe('Identity Provider', function() {
     let identity
 
     it('identity verifies', async () => {
-      identity = await IdentityProvider.createIdentity(keystore, id, type, identitySignerFn)
+      identity = await IdentityProvider.createIdentity(keystore, id, { type, identitySignerFn })
       const verified = await IdentityProvider.verifyIdentity(identity, identityVerifierFn)
       assert.equal(verified, true)
     })
@@ -210,7 +210,7 @@ describe('Identity Provider', function() {
     let identity
 
     beforeEach(async () => {
-      identity = await IdentityProvider.createIdentity(keystore, id, type, identitySignerFn)
+      identity = await IdentityProvider.createIdentity(keystore, id, { type, identitySignerFn })
     })
 
     it('sign data', async () => {
@@ -246,7 +246,7 @@ describe('Identity Provider', function() {
       signingKey = await keystore.getKey(id)
       expectedSignature = await keystore.sign(signingKey, data)
 
-      identity = await IdentityProvider.createIdentity(keystore, id, type, identitySignerFn)
+      identity = await IdentityProvider.createIdentity(keystore, id, { type, identitySignerFn })
       signature = await identity.provider.sign(identity, data, keystore)
     })
 
@@ -277,7 +277,7 @@ describe('Identity Provider', function() {
 
     before(async () => {
       wallet = new Wallet(privKey)
-      identity = await IdentityProvider.createIdentity(keystore, wallet.address, 'ethers', identitySignerFn)
+      identity = await IdentityProvider.createIdentity(keystore, wallet.address, { type: 'ethers', identitySignerFn })
     })
 
     it('ethers identity verifies', async () => {
@@ -286,7 +286,7 @@ describe('Identity Provider', function() {
     })
 
     it('ethers identity with incorrect id does not verify', async () => {
-      let identity2 = await IdentityProvider.createIdentity(keystore, 'NotWalletAddress', 'ethers', identitySignerFn)
+      let identity2 = await IdentityProvider.createIdentity(keystore, 'NotWalletAddress', { type: 'ethers', identitySignerFn })
       const verified = await IdentityProvider.verifyIdentity(identity2, identityVerifierFn)
       assert.equal(verified, false)
     })
