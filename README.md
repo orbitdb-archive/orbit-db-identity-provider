@@ -3,7 +3,7 @@
 > Default identity provider for orbitdb
 
 ### Use
-```
+```js
 const Keystore = require('orbit-db-keystore')
 const keystore = Keystore.create('keysPath')
 const identity = await IdentityProvider.createIdentity(keystore, 'peerid')
