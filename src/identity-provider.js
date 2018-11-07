@@ -21,7 +21,9 @@ class IdentityProvider {
     // If no type was indicated, set to default
     const type = isDefined(options.type) ? options.type : defaultType
     // If signing function was not passed, use keystore as the identity signer
-    const identitySignerFn = isDefined(options.identitySignerFn) ? options.identitySignerFn : selfSigningFn
+    const identitySignerFn = isDefined(options.identitySignerFn) 
+      ? options.identitySignerFn 
+      : selfSigningFn
     // Sign the id with the signing key we're going to use
     const idSignature = await this._keystore.sign(key, id)
     // Get the hex string of the public key
@@ -31,13 +33,19 @@ class IdentityProvider {
     return new Identity(id, publicKey, idSignature, pubKeyIdSignature, type, this)
   }
 
+  async verifyIdentity (identity, verifierFunction) {
+    // Verify that identity was signed by the ID
+    const verified = await this._keystore.verify(
+      identity.signatures.publicKey,
+      identity.publicKey,
+      identity.publicKey + identity.signatures.publicKey
+    )
+    return verified
+  }
+
   static async createIdentity (keystore, id, options = {}) {
     const identityProvider = new IdentityProvider(keystore)
     return await identityProvider.createIdentity(id, options)
-  }
-
-  static async verifyIdentity (identity, verifierFunction) {
-    return verifierFunction(identity)
   }
 
   async sign (identity, data) {
