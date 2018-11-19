@@ -18,7 +18,7 @@ describe('Ethereum Identity Provider', function() {
 
   before(async () => {
     rmrf.sync(keypath)
-    IdentityProviders.addIdentityProvider({ IdentityProvider: EthIdentityProvider })
+    IdentityProviders.addIdentityProvider(EthIdentityProvider)
     keystore = Keystore.create(keypath)
 
   })

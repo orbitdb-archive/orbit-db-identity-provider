@@ -19,6 +19,19 @@ class IdentityProviders {
     this._keystore = options.keystore || Keystore.create(options.keypath || './orbitdb/ipkeys')
   }
 
+  async sign (identity, data) {
+    const signingKey = await this._keystore.getKey(identity.id)
+    if (!signingKey)
+      throw new Error(`Private signing key not found from Keystore`)
+
+    const signature = await this._keystore.sign(signingKey, data)
+    return signature
+  }
+
+  async verify (signature, publicKey, data) {
+    return this._keystore.verify(signature, publicKey, data)
+  }
+
   async create(id, options = {}) {
     const { publicKey, idSignature, selfSignedPubKeyIdSig } = await this.signIdentity(id, options)
     const IdentityProvider = getHandlerFor(options.type)
@@ -35,19 +48,6 @@ class IdentityProviders {
     return { publicKey, idSignature, selfSignedPubKeyIdSig }
   }
 
-  async sign (identity, data) {
-    const signingKey = await this._keystore.getKey(identity.id)
-    if (!signingKey)
-      throw new Error(`Private signing key not found from Keystore`)
-
-    const signature = await this._keystore.sign(signingKey, data)
-    return signature
-  }
-
-  async verify (signature, publicKey, data) {
-    return this._keystore.verify(signature, publicKey, data)
-  }
-
   async verifyIdentity (identity, options = {}) {
     const verified = await this._keystore.verify(
       identity.signatures.id,
@@ -56,38 +56,6 @@ class IdentityProviders {
     )
 
     return verified && await IdentityProviders.verifyIdentity(identity, options)
-  }
-
-  static isSupported (type) {
-    return Object.keys(supportedTypes).includes(type)
-  }
-
-  static addIdentityProvider (options) {
-    if (!options.IdentityProvider) {
-      throw new Error('IdentityProvider class needs to be given as an option')
-    }
-
-    if (!options.IdentityProvider.type ||
-      typeof options.IdentityProvider.type !== 'string') {
-      throw new Error('Given IdentityProvider class needs to implement: static get type() { /* return a string */}.')
-    }
-
-    supportedTypes[options.IdentityProvider.type] = options.IdentityProvider
-  }
-
-  static addIdentityProviders (options) {
-    const identityProviders = options.IdentityProviders
-    if (!identityProviders) {
-      throw new Error('IdentityProvider classes need to be given as an option')
-    }
-
-    identityProviders.forEach((identityProvider) => {
-      IdentityProviders.addIdentityProvider({ addIdentityProvider: identityProvider })
-    })
-  }
-
-  static removeIdentityProvider (type) {
-    delete supportedTypes[type]
   }
 
   static async verifyIdentity(identity, options = {}) {
@@ -99,6 +67,27 @@ class IdentityProviders {
     const identityProvider = new IdentityProviders(options)
     options = Object.assign({}, { type: 'orbitdb' }, options)
     return await identityProvider.create(id, options)
+  }
+  
+  static isSupported (type) {
+    return Object.keys(supportedTypes).includes(type)
+  }
+
+  static addIdentityProvider (IdentityProvider) {
+    if (!IdentityProvider) {
+      throw new Error('IdentityProvider class needs to be given as an option')
+    }
+
+    if (!IdentityProvider.type ||
+      typeof IdentityProvider.type !== 'string') {
+      throw new Error('Given IdentityProvider class needs to implement: static get type() { /* return a string */}.')
+    }
+
+    supportedTypes[IdentityProvider.type] = IdentityProvider
+  }
+
+  static removeIdentityProvider (type) {
+    delete supportedTypes[type]
   }
 }
 

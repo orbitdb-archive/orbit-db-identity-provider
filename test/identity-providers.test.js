@@ -154,7 +154,7 @@ describe('Identity Provider', function() {
         static get type () { return 'fake' }
       }
 
-      IdentityProviders.addIdentityProvider({ IdentityProvider: IP })
+      IdentityProviders.addIdentityProvider(IP)
       identity = await IdentityProviders.createIdentity(id, { type: IP.type, keystore })
       const data = identity.publicKey + identity.pkSignature
       const verified = await IdentityProviders.verifyIdentity(identity)
