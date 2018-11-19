@@ -31,7 +31,7 @@ describe('Identity Provider', function() {
       let identity
 
       before(async () => {
-        identity = await IdentityProviders.createIdentity(id, { type, keystore })
+        identity = await IdentityProviders.createIdentity(id, { keypath })
       })
 
       it('has the correct id', async () => {
@@ -39,28 +39,28 @@ describe('Identity Provider', function() {
       })
 
       it('created a key for id in keystore', async () => {
-        const key = await keystore.getKey(id)
+        const key = await identity.provider._keystore.getKey(id)
         assert.notEqual(key, undefined)
       })
 
       it('has the correct public key', async () => {
-        const signingKey = await keystore.getKey(id)
+        const signingKey = await identity.provider._keystore.getKey(id)
         assert.notEqual(signingKey, undefined)
         assert.equal(identity.publicKey, signingKey.getPublic('hex'))
       })
 
       it('has a signature for the id', async () => {
-        const signingKey = await keystore.getKey(id)
-        const idSignature = await keystore.sign(signingKey, id)
-        const verifies = await keystore.verify(idSignature, signingKey.getPublic('hex'), id)
+        const signingKey = await identity.provider._keystore.getKey(id)
+        const idSignature = await identity.provider._keystore.sign(signingKey, id)
+        const verifies = await identity.provider._keystore.verify(idSignature, signingKey.getPublic('hex'), id)
         assert.equal(verifies, true)
         assert.equal(identity.signatures.id, idSignature)
       })
 
       it('has a signature for the publicKey', async () => {
-        const signingKey = await keystore.getKey(id)
-        const idSignature = await keystore.sign(signingKey, id)
-        const publicKeyAndIdSignature = await keystore.sign(signingKey, identity.publicKey + idSignature)
+        const signingKey = await identity.provider._keystore.getKey(id)
+        const idSignature = await identity.provider._keystore.sign(signingKey, id)
+        const publicKeyAndIdSignature = await identity.provider._keystore.sign(signingKey, identity.publicKey + idSignature)
         assert.equal(identity.signatures.publicKey, publicKeyAndIdSignature)
       })
 
