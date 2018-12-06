@@ -30,7 +30,7 @@ describe('Ethereum Identity Provider', function() {
     before(async () => {
       wallet = await EthIdentityProvider.createWallet()
       id = wallet.address
-      identity = await IdentityProviders.createIdentity(id, { type, keystore, wallet })
+      identity = await IdentityProviders.createIdentity({ type, keystore, wallet })
     })
 
     it('has the correct id', async () => {
@@ -71,7 +71,7 @@ describe('Ethereum Identity Provider', function() {
     before(async () => {
       wallet = await EthIdentityProvider.createWallet()
       id = wallet.address
-      identity = await IdentityProviders.createIdentity(id, { keystore, type, wallet })
+      identity = await IdentityProviders.createIdentity({ keystore, type, wallet })
     })
 
     it('ethereum identity verifies', async () => {
@@ -80,7 +80,7 @@ describe('Ethereum Identity Provider', function() {
     })
 
     it('ethereum identity with incorrect id does not verify', async () => {
-      let identity2 = await IdentityProviders.createIdentity('NotWalletAddress', { type , wallet, keystore })
+      let identity2 = new Identity('NotAnId', identity.publicKey, identity.signatures.id, identity.signatures.publicKey, identity.type, identity.provider)
       const verified = await IdentityProviders.verifyIdentity(identity2, { wallet })
       assert.equal(verified, false)
     })
@@ -94,7 +94,7 @@ describe('Ethereum Identity Provider', function() {
     before(async () => {
       wallet = await EthIdentityProvider.createWallet()
       id = wallet.address
-      identity = await IdentityProviders.createIdentity(id, { keystore, type, wallet })
+      identity = await IdentityProviders.createIdentity({ keystore, type, wallet })
     })
 
     it('sign data', async () => {
@@ -128,7 +128,7 @@ describe('Ethereum Identity Provider', function() {
         signingKey = await keystore.getKey(id)
         expectedSignature = await keystore.sign(signingKey, data)
 
-        identity = await IdentityProviders.createIdentity(id, { type, wallet, keystore })
+        identity = await IdentityProviders.createIdentity({ type, wallet, keystore })
         signature = await identity.provider.sign(identity, data, keystore)
       })
 

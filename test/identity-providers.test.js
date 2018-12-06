@@ -12,26 +12,47 @@ const savedKeysPath = path.resolve('./test/fixtures/keys')
 const keypath = path.resolve('./test/keys')
 let keystore
 
+const type = 'orbitdb'
+
+const {
+  config,
+  startIpfs,
+  stopIpfs,
+  testAPIs,
+} = require('./utils')
+
+const ipfsPath = './orbitdb/tests/identity-providers/ipfs'
+
 describe('Identity Provider', function() {
-  const type = 'orbitdb'
-  before(() => {
-    // Make sure we don't use previous test keys
+  this.timeout(config.timeout)
+  let ipfsd, ipfs, ipfsId
+
+  before(async () => {
+    config.daemon1.repo = ipfsPath
+    rmrf.sync(config.daemon1.repo)
     rmrf.sync(keypath)
     keystore = Keystore.create(keypath)
+    ipfsd = await startIpfs('js-ipfs', config.daemon1)
+    ipfs = ipfsd.api
+    let idInfo = await ipfs.id()
+    ipfsId = idInfo.id
   })
 
-  after(() => {
+  after(async () => {
     // Remove stored keys
     rmrf.sync(keypath)
+    if (ipfsd)
+      await stopIpfs(ipfsd)
   })
 
   describe('create an identity', () => {
     describe('create a new identity', () => {
-      const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'
-      let identity
+      let identity, pubKey, id
 
       before(async () => {
-        identity = await IdentityProviders.createIdentity(id, { keypath })
+        identity = await IdentityProviders.createIdentity({ ipfs, keystore })
+        let key = await keystore.getKey(ipfsId)
+        id = key.getPublic('hex')
       })
 
       it('has the correct id', async () => {
@@ -39,7 +60,7 @@ describe('Identity Provider', function() {
       })
 
       it('created a key for id in keystore', async () => {
-        const key = await identity.provider._keystore.getKey(id)
+        const key = await identity.provider._keystore.getKey(ipfsId)
         assert.notEqual(key, undefined)
       })
 
@@ -58,21 +79,24 @@ describe('Identity Provider', function() {
       })
 
       it('has a signature for the publicKey', async () => {
-        const signingKey = await identity.provider._keystore.getKey(id)
-        const idSignature = await identity.provider._keystore.sign(signingKey, id)
-        const publicKeyAndIdSignature = await identity.provider._keystore.sign(signingKey, identity.publicKey + idSignature)
+        const signingKey = await keystore.getKey(ipfsId)
+        const idSignature = await keystore.sign(signingKey, id)
+        const publicKeyAndIdSignature = await keystore.sign(signingKey, identity.publicKey + idSignature)
         assert.equal(identity.signatures.publicKey, publicKeyAndIdSignature)
       })
 
       it('defaults to Keystore.sign as default identity signer', async () => {
         let savedKeysKeystore = Keystore.create(savedKeysPath)
+        let id = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
+        ipfs.id = async () => Promise.resolve({ id })
 
-        const expectedPublicKey = '0474eee0310cd3ea85528c0305e7ab39f410437eebaf794bddbac97869d82f0abbfc7089c6a41a3ed7e3343831c264b18003454042788e5af7aca5684ff225f78c'
-        const expectedPkSignature = '3045022100b76e40b9aaf005eedc76703ad5a22753f0bfe244f4b4c63fd0082141cf69b11d0220328ac530ef665cf2619e85e5e39c15f8e8c7856b2f56c7a10863fc09407e7919'
-        const expectedSignature = '3046022100f07c401bf4f598f41042bb34b45f311b942cafe46890a753eee27dcd5e85d565022100f0755c52cfcfc94a97858768ba07de71bbc4637e02ef886db9843f3aba80b610'
+        const expectedPublicKey = '04f5b75ff7ca624fd0bf68e7aa94f59477407bf20c769c6cd4cd10c2662b5fa34adfe5e85636c9789bc9c25146ed3eaef1ef7c40da661f68b19909c3116863beec'
+        const expectedPkSignature = '304402201b17da87ce27f4f4a5541c1af1f25bb748fac16890d2dc5c44c3011902007e9d022024292230343221b8745323d2c80fac3c52a69ef7af31dae7284bf2daab0e1a19'
+        const expectedSignature = '3044022015b33469bdd666d435c8578652d0c8ab3c92fa7cf4bc8e1e2ff383a3ea49972a022056f6b0bc3662e78f35e770cc3ae867d7ed253a2fee9a3754ff7938386221c447'
 
-        identity = await IdentityProviders.createIdentity(id, { keystore: savedKeysKeystore })
-        assert.equal(identity.id, id)
+        identity = await IdentityProviders.createIdentity({ ipfs, keystore: savedKeysKeystore })
+        let key = await savedKeysKeystore.getKey(id)
+        assert.equal(identity.id, key.getPublic('hex'))
         assert.equal(identity.publicKey, expectedPublicKey)
         assert.equal(identity.signatures.id, expectedPkSignature)
         assert.equal(identity.signatures.publicKey, expectedSignature)
@@ -81,23 +105,24 @@ describe('Identity Provider', function() {
 
     describe('create an identity with saved keys', () => {
       const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'
-      const expectedPublicKey = '0474eee0310cd3ea85528c0305e7ab39f410437eebaf794bddbac97869d82f0abbfc7089c6a41a3ed7e3343831c264b18003454042788e5af7aca5684ff225f78c'
+      const expectedPublicKey = '04c709aa3c50b4c70ff545f42fc029ceb5b3e86fbda2c4c6a37cbc32b128cc954180f1d95663aad04beb8a59af7b01ade59b5be8008abe91b465bc1f40c08eebf2'
 
       let savedKeysKeystore
       let identity
       before(async () => {
-
+        ipfs.id = async () => Promise.resolve({ id })
         savedKeysKeystore = Keystore.create(savedKeysPath)
-        identity = await IdentityProviders.createIdentity(id, { keystore: savedKeysKeystore })
+        identity = await IdentityProviders.createIdentity({ ipfs, keystore: savedKeysKeystore })
       })
 
       it('has the correct id', async () => {
-        assert.equal(identity.id, id)
+        let key = await savedKeysKeystore.getKey(id)
+        assert.equal(identity.id, key.getPublic('hex'))
       })
 
       it('has the correct public key', async () => {
-        const signingKey = await savedKeysKeystore.getKey(id)
-        assert.equal(identity.publicKey, expectedPublicKey)
+        const signingKey = await savedKeysKeystore.getKey(identity.id)
+        assert.equal(identity.publicKey, signingKey.getPublic('hex'))
       })
 
       it('has the correct identity type', async () => {
@@ -105,10 +130,10 @@ describe('Identity Provider', function() {
       })
 
       it('has the correct idSignature', async () => {
-        const expectedIdSignature = "3045022100b76e40b9aaf005eedc76703ad5a22753f0bfe244f4b4c63fd0082141cf69b11d0220328ac530ef665cf2619e85e5e39c15f8e8c7856b2f56c7a10863fc09407e7919"
-        const signingKey = await savedKeysKeystore.getKey(id)
-        const idSignature = await savedKeysKeystore.sign(signingKey, id)
-        assert.equal(idSignature, expectedIdSignature)
+        const expectedIdSignature = '304402204070d67e8fc4431c0e994d2c5a34024eef23892b065a788c73933d08b998a361022065c9ea0e0395646de95246708023b4320d5acb19197a4fc351473fd34c993739'
+        const signingKey = await savedKeysKeystore.getKey(identity.id)
+        const idSignature = await savedKeysKeystore.sign(signingKey, identity.id)
+        assert.equal(idSignature, identity.signatures.id)
       })
 
       it('has a pubKeyIdSignature for the publicKey', async () => {
@@ -119,11 +144,11 @@ describe('Identity Provider', function() {
 
       it('has the correct signatures', async () => {
         const expectedSignature = {
-          id: '3045022100b76e40b9aaf005eedc76703ad5a22753f0bfe244f4b4c63fd0082141cf69b11d0220328ac530ef665cf2619e85e5e39c15f8e8c7856b2f56c7a10863fc09407e7919',
-          publicKey: '3046022100f07c401bf4f598f41042bb34b45f311b942cafe46890a753eee27dcd5e85d565022100f0755c52cfcfc94a97858768ba07de71bbc4637e02ef886db9843f3aba80b610'
+          id: '304502204bcfef0e1257db3c3afb62bd164f65987c7f76a3b46d4cfc28c11106249a51a1022100d6d8b16741262002d0afc8e9745f197f472997c3671caae77c58b1ea68623945',
+          publicKey: '304402201e219dc1b6f874245e7cc770a3ae8e839861eece219514dfc12919ff6c808ff302202479a6d6b4ea32add2df3e76e7c0432976e7ad2fe58c1e4cdd451b39b38c9089'
         }
-        const signingKey = await savedKeysKeystore.getKey(id)
-        const idSignature = await savedKeysKeystore.sign(signingKey, id)
+        const signingKey = await savedKeysKeystore.getKey(identity.id)
+        const idSignature = await savedKeysKeystore.sign(signingKey, identity.id)
         const pubKeyIdSignature = await savedKeysKeystore.sign(signingKey, signingKey.getPublic('hex') + idSignature)
         assert.deepEqual(identity.signatures, expectedSignature)
       })
@@ -134,28 +159,36 @@ describe('Identity Provider', function() {
     const id = 'QmFoo'
     let identity
 
+    before(async () => {
+      ipfs.id = async () => Promise.resolve({ id })
+    })
+
     it('identity pkSignature verifies', async () => {
-      identity = await IdentityProviders.createIdentity(id, { type, keystore })
-      const verified = await keystore.verify(identity.signatures.id, identity.publicKey, id)
+      identity = await IdentityProviders.createIdentity({ ipfs, type })
+      const verified = await keystore.verify(identity.signatures.id, identity.publicKey, identity.id)
       assert.equal(verified, true)
     })
 
     it('identity signature verifies', async () => {
-      identity = await IdentityProviders.createIdentity(id, { type, keystore })
+      identity = await IdentityProviders.createIdentity({ ipfs, type, keystore })
       const data = identity.publicKey + identity.signatures.id
-      const verified = await keystore.verify(identity.signatures.publicKey, identity.publicKey, data)
+      const key = await keystore.getKey(id)
+      const sign = await keystore.sign(key, data)
+      const verified = await keystore.verify(identity.signatures.publicKey, identity.id, identity.publicKey + identity.signatures.id)
       assert.equal(verified, true)
     })
 
     it('false signature doesn\'t verify', async () => {
       class IP {
-        static async signIdentity(data) { return `false signature '${data}'` }
+        constructor() {}
+        async createId() { return 'pubKey' }
+        async signIdentity(data) { return `false signature '${data}'` }
         static async verifyIdentity(data) { return false }
         static get type () { return 'fake' }
       }
 
       IdentityProviders.addIdentityProvider(IP)
-      identity = await IdentityProviders.createIdentity(id, { type: IP.type, keystore })
+      identity = await IdentityProviders.createIdentity({ type: IP.type, keystore })
       const data = identity.publicKey + identity.pkSignature
       const verified = await IdentityProviders.verifyIdentity(identity)
       assert.equal(verified, false)
@@ -168,23 +201,25 @@ describe('Identity Provider', function() {
     let identity
 
     it('identity verifies', async () => {
-      identity = await IdentityProviders.createIdentity(id, { type, keystore })
-      const verified = await IdentityProviders.verifyIdentity(identity)
+      ipfs.id = async () => Promise.resolve({ id })
+      identity = await IdentityProviders.createIdentity({ ipfs, type, keystore })
+      const verified = await identity.provider.verifyIdentity(identity)
       assert.equal(verified, true)
     })
   })
-  //
+
   describe('sign data with an identity', () => {
     const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'
     const data = 'hello friend'
     let identity
 
-    beforeEach(async () => {
-      identity = await IdentityProviders.createIdentity(id, { keystore })
+    before(async () => {
+      ipfs.id = async () => Promise.resolve({ id })
+      identity = await IdentityProviders.createIdentity({ ipfs, keystore })
     })
 
     it('sign data', async () => {
-      const signingKey = await keystore.getKey(id)
+      const signingKey = await keystore.getKey(identity.id)
       const expectedSignature = await keystore.sign(signingKey, data)
       const signature = await identity.provider.sign(identity, data, keystore)
       assert.equal(signature, expectedSignature)
@@ -216,7 +251,7 @@ describe('Identity Provider', function() {
       signingKey = await keystore.getKey(id)
       expectedSignature = await keystore.sign(signingKey, data)
 
-      identity = await IdentityProviders.createIdentity(id, { type, keystore })
+      identity = await IdentityProviders.createIdentity({ ipfs, type, keystore })
       signature = await identity.provider.sign(identity, data, keystore)
     })
 
