@@ -1,18 +1,7 @@
-/* eslint-disable no-unused-vars */
 'use strict'
 
 const assert = require('assert')
-const path = require('path')
-const rmrf = require('rimraf')
-const mkdirp = require('mkdirp')
-const LocalStorage = require('node-localstorage').LocalStorage
-const Keystore = require('orbit-db-keystore')
-const IdentityProvider = require('../src/identity-provider')
 const Identity = require('../src/identity')
-
-const savedKeysPath = path.resolve('./test/fixtures/keys')
-const testKeysPath = path.resolve('./test/keys')
-let keystore, key
 
 describe('Identity', function () {
   before(() => {

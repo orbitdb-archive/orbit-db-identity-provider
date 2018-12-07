@@ -1,11 +1,8 @@
-/* eslint-disable no-unused-vars */
 'use strict'
 
 const assert = require('assert')
 const path = require('path')
 const rmrf = require('rimraf')
-const mkdirp = require('mkdirp')
-const LocalStorage = require('node-localstorage').LocalStorage
 const Keystore = require('orbit-db-keystore')
 const IdentityProvider = require('../src/identity-provider')
 const Identity = require('../src/identity')
@@ -93,9 +90,6 @@ describe('Identity Provider', function () {
         const expectedPublicKey = '0474eee0310cd3ea85528c0305e7ab39f410437eebaf794bddbac97869d82f0abbfc7089c6a41a3ed7e3343831c264b18003454042788e5af7aca5684ff225f78c'
         const expectedPkSignature = '3045022100b76e40b9aaf005eedc76703ad5a22753f0bfe244f4b4c63fd0082141cf69b11d0220328ac530ef665cf2619e85e5e39c15f8e8c7856b2f56c7a10863fc09407e7919'
         const expectedSignature = '3046022100f07c401bf4f598f41042bb34b45f311b942cafe46890a753eee27dcd5e85d565022100f0755c52cfcfc94a97858768ba07de71bbc4637e02ef886db9843f3aba80b610'
-        const identitySignerFn = (key, data) => {
-          return expectedSignature
-        }
 
         identity = await IdentityProvider.createIdentity(savedKeysKeystore, id)
         assert.strictEqual(identity.id, id)
@@ -125,12 +119,10 @@ describe('Identity Provider', function () {
       })
 
       it('has the correct public key', async () => {
-        const signingKey = await savedKeysKeystore.getKey(id)
         assert.strictEqual(identity.publicKey, expectedPublicKey)
       })
 
       it('has the correct public key', async () => {
-        const signingKey = await savedKeysKeystore.getKey(id)
         assert.strictEqual(identity.publicKey, expectedPublicKey)
       })
 
@@ -156,9 +148,6 @@ describe('Identity Provider', function () {
           id: '3045022100b76e40b9aaf005eedc76703ad5a22753f0bfe244f4b4c63fd0082141cf69b11d0220328ac530ef665cf2619e85e5e39c15f8e8c7856b2f56c7a10863fc09407e7919',
           publicKey: '3046022100f07c401bf4f598f41042bb34b45f311b942cafe46890a753eee27dcd5e85d565022100f0755c52cfcfc94a97858768ba07de71bbc4637e02ef886db9843f3aba80b610'
         }
-        const signingKey = await savedKeysKeystore.getKey(id)
-        const idSignature = await savedKeysKeystore.sign(signingKey, id)
-        const pubKeyIdSignature = await savedKeysKeystore.sign(signingKey, signingKey.getPublic('hex') + idSignature)
         assert.deepStrictEqual(identity.signatures, expectedSignature)
       })
     })
@@ -225,7 +214,7 @@ describe('Identity Provider', function () {
 
       let err
       try {
-        const signature = await identity.provider.sign(modifiedIdentity, data, keystore)
+        const signature = await identity.provider.sign(modifiedIdentity, data, keystore) /* eslint-disable-line */
       } catch (e) {
         err = e
       }
@@ -238,13 +227,8 @@ describe('Identity Provider', function () {
     const data = 'hello friend'
     let identity
     let signature
-    let signingKey
-    let expectedSignature
 
     beforeEach(async () => {
-      signingKey = await keystore.getKey(id)
-      expectedSignature = await keystore.sign(signingKey, data)
-
       identity = await IdentityProvider.createIdentity(keystore, id, { type, identitySignerFn })
       signature = await identity.provider.sign(identity, data, keystore)
     })
