@@ -1,4 +1,4 @@
 'use strict'
-const IdentityProvider = require('./src/identity-provider')
+const IdentityProvider = require('./src/identity-providers')
 
 module.exports = IdentityProvider

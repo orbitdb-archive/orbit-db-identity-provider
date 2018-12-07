@@ -56,6 +56,7 @@ class IdentityProviders {
       identity.publicKey,
       identity.id
     )
+    options = Object.assign({}, options, { provider: this })
     return verified && await IdentityProviders.verifyIdentity(identity, options)
   }
 

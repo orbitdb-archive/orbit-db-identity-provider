@@ -35,7 +35,7 @@ class OrbitDBIdentityProvider extends IdentityProvider {
 
   static async verifyIdentity (identity, options = {}) {
     // Verify that identity was signed by the ID
-    const keystore = options.keystore || identity.provider._keystore
+    const keystore = options.keystore || options.provider._keystore
     const verified = await keystore.verify(
       identity.signatures.publicKey,
       identity.id,
