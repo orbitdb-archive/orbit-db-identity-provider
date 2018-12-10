@@ -36,11 +36,15 @@ describe('Identity Provider', function () {
   describe('constructor', () => {
     it('throws an error if keystore is not given as a constructor argument', async () => {
       let err
+      let identity
+
       try {
-        identity = new IdentityProvider() // eslint-disable-line
+        identity = new IdentityProvider()
       } catch (e) {
         err = e
       }
+
+      assert.strictEqual(identity, undefined)
       assert.strictEqual(err.message, 'Keystore is required')
     })
   })
@@ -214,7 +218,7 @@ describe('Identity Provider', function () {
 
       let err
       try {
-        const signature = await identity.provider.sign(modifiedIdentity, data, keystore) /* eslint-disable-line */
+        await identity.provider.sign(modifiedIdentity, data, keystore)
       } catch (e) {
         err = e
       }
