@@ -29,7 +29,7 @@ class Identity {
 
     this._id = id
     this._publicKey = publicKey
-    this._signatures = Object.assign({}, { id: idSignature }, { publicKey: pubKeyIdSignature } )
+    this._signatures = Object.assign({}, { id: idSignature }, { publicKey: pubKeyIdSignature })
     this._type = type
     this._provider = provider
   }
@@ -46,15 +46,15 @@ class Identity {
     return this._publicKey
   }
 
-  get signatures() {
+  get signatures () {
     return this._signatures
   }
 
-  get type() {
+  get type () {
     return this._type
   }
 
-  get provider() {
+  get provider () {
     return this._provider
   }
 

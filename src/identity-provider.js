@@ -11,13 +11,13 @@ class IdentityProvider {
     this._keystore = keystore
   }
 
-  async createIdentity(id, options = {}) {
+  async createIdentity (id, options = {}) {
     // Get the key for id from the keystore or create one
     // if it doesn't exist
     const key = await this._keystore.getKey(id) ||
       await this._keystore.createKey(id)
     // Sign with the key for the id
-    const selfSigningFn = async (id, data) => await this._keystore.sign(key, data)
+    const selfSigningFn = async (id, data) => this._keystore.sign(key, data)
     // If no type was indicated, set to default
     const type = isDefined(options.type) ? options.type : defaultType
     // If signing function was not passed, use keystore as the identity signer
@@ -33,7 +33,7 @@ class IdentityProvider {
 
   static async createIdentity (keystore, id, options = {}) {
     const identityProvider = new IdentityProvider(keystore)
-    return await identityProvider.createIdentity(id, options)
+    return identityProvider.createIdentity(id, options)
   }
 
   static async verifyIdentity (identity, verifierFunction) {
@@ -43,8 +43,9 @@ class IdentityProvider {
   async sign (identity, data) {
     const signingKey = await this._keystore.getKey(identity.id)
 
-    if (!signingKey)
+    if (!signingKey) {
       throw new Error(`Private signing key not found from Keystore`)
+    }
 
     const signature = await this._keystore.sign(signingKey, data)
     return signature
