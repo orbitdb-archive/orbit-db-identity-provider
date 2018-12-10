@@ -1,9 +1,9 @@
 'use strict'
-const IdentityProvider = require('./identity-provider')
+const IdentityProviderInterface = require('./identity-provider-interface')
 const Keystore = require('orbit-db-keystore')
 const type = 'orbitdb'
 
-class OrbitDBIdentityProvider extends IdentityProvider {
+class OrbitDBIdentityProvider extends IdentityProviderInterface {
   constructor(options = {}) {
     super()
     this._keystore = options.keystore || Keystore.create(options.keypath || './orbitdb/identity/keys')
@@ -12,21 +12,19 @@ class OrbitDBIdentityProvider extends IdentityProvider {
   // Returns the type of the identity provider
   static get type () { return type }
 
-  async createId(options = {}) {
-    const ipfs = options.ipfs
-    if (!ipfs)
-      throw new Error('ipfs instance required')
+  async getPublicKey(options = {}) {
+    const id = options.id
+    if (!id)
+      throw new Error('id is required')
 
     const keystore = options.keystore || this._keystore
-    const { id } = await ipfs.id()
-    this.id = id
     const key = await keystore.getKey(id) || await keystore.createKey(id)
     return key.getPublic('hex')
   }
 
-  async signIdentity(pubKeyIdSig, options = {}) {
+  async signPubKeySignature(pubKeyIdSig, options = {}) {
     const keystore = options.keystore || this._keystore
-    const id = this.id
+    const id = options.id
     const key = await keystore.getKey(id)
     if(!key)
       throw new Error(`Signing key for '${id}' not found`)

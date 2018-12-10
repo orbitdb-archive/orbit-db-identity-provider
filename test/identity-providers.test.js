@@ -6,7 +6,7 @@ const rmrf = require('rimraf')
 const mkdirp = require('mkdirp')
 const LocalStorage = require('node-localstorage').LocalStorage
 const Keystore = require('orbit-db-keystore')
-const IdentityProviders = require('../src/identity-providers')
+const IdentityProviders = require('../src/identity-provider')
 const Identity = require('../src/identity')
 const savedKeysPath = path.resolve('./test/fixtures/keys')
 const keypath = path.resolve('./test/keys')
@@ -14,87 +14,70 @@ let keystore
 
 const type = 'orbitdb'
 
-const {
-  config,
-  startIpfs,
-  stopIpfs,
-  testAPIs,
-} = require('./utils')
-
-const ipfsPath = './orbitdb/tests/identity-providers/ipfs'
-
 describe('Identity Provider', function() {
-  this.timeout(config.timeout)
-  let ipfsd, ipfs, ipfsId
 
   before(async () => {
-    config.daemon1.repo = ipfsPath
-    rmrf.sync(config.daemon1.repo)
     rmrf.sync(keypath)
     keystore = Keystore.create(keypath)
-    ipfsd = await startIpfs('js-ipfs', config.daemon1)
-    ipfs = ipfsd.api
-    let idInfo = await ipfs.id()
-    ipfsId = idInfo.id
   })
 
   after(async () => {
     // Remove stored keys
     rmrf.sync(keypath)
-    if (ipfsd)
-      await stopIpfs(ipfsd)
   })
 
   describe('create an identity', () => {
     describe('create a new identity', () => {
-      let identity, pubKey, id
+      let id = 'A'
+      let identity, pubKey, externalPublicKey
 
       before(async () => {
-        identity = await IdentityProviders.createIdentity({ ipfs, keystore })
-        let key = await keystore.getKey(ipfsId)
-        id = key.getPublic('hex')
+        identity = await IdentityProviders.createIdentity({ id, keystore })
+        let key = await keystore.getKey(id)
+        externalPublicKey = key.getPublic('hex')
       })
 
       it('has the correct id', async () => {
-        assert.equal(identity.id, id)
+        assert.equal(identity.id, externalPublicKey)
       })
 
       it('created a key for id in keystore', async () => {
-        const key = await identity.provider._keystore.getKey(ipfsId)
+        const key = await identity.provider._keystore.getKey(id)
         assert.notEqual(key, undefined)
       })
 
       it('has the correct public key', async () => {
-        const signingKey = await identity.provider._keystore.getKey(id)
+        const signingKey = keystore.getKey(externalPublicKey)
         assert.notEqual(signingKey, undefined)
         assert.equal(identity.publicKey, signingKey.getPublic('hex'))
       })
 
       it('has a signature for the id', async () => {
-        const signingKey = await identity.provider._keystore.getKey(id)
-        const idSignature = await identity.provider._keystore.sign(signingKey, id)
-        const verifies = await identity.provider._keystore.verify(idSignature, signingKey.getPublic('hex'), id)
+        const signingKey = await keystore.getKey(externalPublicKey)
+        const idSignature = await keystore.sign(signingKey, externalPublicKey)
+        const publicKey = signingKey.getPublic('hex')
+        const verifies = await keystore.verify(idSignature, publicKey, externalPublicKey)
         assert.equal(verifies, true)
         assert.equal(identity.signatures.id, idSignature)
       })
 
       it('has a signature for the publicKey', async () => {
-        const signingKey = await keystore.getKey(ipfsId)
-        const idSignature = await keystore.sign(signingKey, id)
-        const publicKeyAndIdSignature = await keystore.sign(signingKey, identity.publicKey + idSignature)
+        const signingKey = await keystore.getKey(externalPublicKey)
+        const idSignature = await keystore.sign(signingKey, externalPublicKey)
+        const externalKey = await keystore.getKey(id)
+        const publicKeyAndIdSignature = await keystore.sign(externalKey, identity.publicKey + idSignature)
         assert.equal(identity.signatures.publicKey, publicKeyAndIdSignature)
       })
 
       it('defaults to Keystore.sign as default identity signer', async () => {
         let savedKeysKeystore = Keystore.create(savedKeysPath)
         let id = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
-        ipfs.id = async () => Promise.resolve({ id })
 
         const expectedPublicKey = '04f5b75ff7ca624fd0bf68e7aa94f59477407bf20c769c6cd4cd10c2662b5fa34adfe5e85636c9789bc9c25146ed3eaef1ef7c40da661f68b19909c3116863beec'
         const expectedPkSignature = '304402201b17da87ce27f4f4a5541c1af1f25bb748fac16890d2dc5c44c3011902007e9d022024292230343221b8745323d2c80fac3c52a69ef7af31dae7284bf2daab0e1a19'
         const expectedSignature = '3044022015b33469bdd666d435c8578652d0c8ab3c92fa7cf4bc8e1e2ff383a3ea49972a022056f6b0bc3662e78f35e770cc3ae867d7ed253a2fee9a3754ff7938386221c447'
 
-        identity = await IdentityProviders.createIdentity({ ipfs, keystore: savedKeysKeystore })
+        identity = await IdentityProviders.createIdentity({ id, keystore: savedKeysKeystore })
         let key = await savedKeysKeystore.getKey(id)
         assert.equal(identity.id, key.getPublic('hex'))
         assert.equal(identity.publicKey, expectedPublicKey)
@@ -110,9 +93,8 @@ describe('Identity Provider', function() {
       let savedKeysKeystore
       let identity
       before(async () => {
-        ipfs.id = async () => Promise.resolve({ id })
         savedKeysKeystore = Keystore.create(savedKeysPath)
-        identity = await IdentityProviders.createIdentity({ ipfs, keystore: savedKeysKeystore })
+        identity = await IdentityProviders.createIdentity({ id, keystore: savedKeysKeystore })
       })
 
       it('has the correct id', async () => {
@@ -159,18 +141,14 @@ describe('Identity Provider', function() {
     const id = 'QmFoo'
     let identity
 
-    before(async () => {
-      ipfs.id = async () => Promise.resolve({ id })
-    })
-
     it('identity pkSignature verifies', async () => {
-      identity = await IdentityProviders.createIdentity({ ipfs, type })
+      identity = await IdentityProviders.createIdentity({ id, type })
       const verified = await keystore.verify(identity.signatures.id, identity.publicKey, identity.id)
       assert.equal(verified, true)
     })
 
     it('identity signature verifies', async () => {
-      identity = await IdentityProviders.createIdentity({ ipfs, type, keystore })
+      identity = await IdentityProviders.createIdentity({ id, type, keystore })
       const data = identity.publicKey + identity.signatures.id
       const key = await keystore.getKey(id)
       const sign = await keystore.sign(key, data)
@@ -181,8 +159,8 @@ describe('Identity Provider', function() {
     it('false signature doesn\'t verify', async () => {
       class IP {
         constructor() {}
-        async createId() { return 'pubKey' }
-        async signIdentity(data) { return `false signature '${data}'` }
+        async getPublicKey() { return 'pubKey' }
+        async signPubKeySignature(data) { return `false signature '${data}'` }
         static async verifyIdentity(data) { return false }
         static get type () { return 'fake' }
       }
@@ -201,8 +179,7 @@ describe('Identity Provider', function() {
     let identity
 
     it('identity verifies', async () => {
-      ipfs.id = async () => Promise.resolve({ id })
-      identity = await IdentityProviders.createIdentity({ ipfs, type, keystore })
+      identity = await IdentityProviders.createIdentity({ id, type, keystore })
       const verified = await identity.provider.verifyIdentity(identity)
       assert.equal(verified, true)
     })
@@ -214,8 +191,7 @@ describe('Identity Provider', function() {
     let identity
 
     before(async () => {
-      ipfs.id = async () => Promise.resolve({ id })
-      identity = await IdentityProviders.createIdentity({ ipfs, keystore })
+      identity = await IdentityProviders.createIdentity({ id, keystore })
     })
 
     it('sign data', async () => {
@@ -251,7 +227,7 @@ describe('Identity Provider', function() {
       signingKey = await keystore.getKey(id)
       expectedSignature = await keystore.sign(signingKey, data)
 
-      identity = await IdentityProviders.createIdentity({ ipfs, type, keystore })
+      identity = await IdentityProviders.createIdentity({ id, type, keystore })
       signature = await identity.provider.sign(identity, data, keystore)
     })
 
