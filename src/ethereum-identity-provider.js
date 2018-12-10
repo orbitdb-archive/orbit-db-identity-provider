@@ -12,8 +12,8 @@ class EthIdentityProvider extends IdentityProvider {
   static get type () { return type }
 
   // Returns the signer's id
-  async getPublicKey(options = {}) {
-    const wallet = this.wallet || await EthIdentityProvider.createWallet(options)
+  getPublicKey(options = {}) {
+    const wallet = this.wallet || EthIdentityProvider.createWallet(options)
     if (!wallet)
       throw new Error(`wallet instance is required`)
     return wallet.address
@@ -25,10 +25,10 @@ class EthIdentityProvider extends IdentityProvider {
     if (!wallet)
       throw new Error(`wallet is required`)
 
-    return await wallet.signMessage(pubKeySignature)
+    return wallet.signMessage(pubKeySignature)
   }
 
-  static async verifyIdentity (identity, options = {}) {
+  static verifyIdentity (identity, options = {}) {
     // Verify that identity was signed by the id
     const signerAddress = utils.verifyMessage(identity.publicKey + identity.signatures.id, identity.signatures.publicKey)
     return (signerAddress === identity.id)
@@ -45,7 +45,7 @@ class EthIdentityProvider extends IdentityProvider {
         throw new Error(`encrypted json is required`)
       if(!options.encryptedJsonOpts.password)
         throw new Error(`password for encrypted json is required`)
-      return await Wallet.fromMnemonic(options.encryptedJsonOpts.json, options.encryptedJsonOpts.password, options.encryptedJsonOpts.progressCallback)
+      return Wallet.fromEncryptedJson(options.encryptedJsonOpts.json, options.encryptedJsonOpts.password, options.encryptedJsonOpts.progressCallback)
     }
     return Wallet.createRandom()
   }

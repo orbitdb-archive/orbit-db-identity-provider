@@ -25,11 +25,10 @@ describe('Ethereum Identity Provider', function() {
 
   describe('create an ethereum identity', () => {
     let identity
-    let wallet, id
+    let wallet
 
     before(async () => {
       wallet = await EthIdentityProvider.createWallet()
-      id = wallet.address
       identity = await IdentityProvider.createIdentity({ type, keystore, wallet })
     })
 
@@ -38,27 +37,27 @@ describe('Ethereum Identity Provider', function() {
     })
 
     it('created a key for id in keystore', async () => {
-      const key = await keystore.getKey(id)
+      const key = await keystore.getKey(wallet.address)
       assert.notEqual(key, undefined)
     })
 
     it('has the correct public key', async () => {
-      const signingKey = await keystore.getKey(id)
+      const signingKey = await keystore.getKey(wallet.address)
       assert.notEqual(signingKey, undefined)
       assert.equal(identity.publicKey, signingKey.getPublic('hex'))
     })
 
     it('has a signature for the id', async () => {
-      const signingKey = await keystore.getKey(id)
-      const idSignature = await keystore.sign(signingKey, id)
-      const verifies = await keystore.verify(idSignature, signingKey.getPublic('hex'), id)
+      const signingKey = await keystore.getKey(wallet.address)
+      const idSignature = await keystore.sign(signingKey, wallet.address)
+      const verifies = await keystore.verify(idSignature, signingKey.getPublic('hex'), wallet.address)
       assert.equal(verifies, true)
       assert.equal(identity.signatures.id, idSignature)
     })
 
     it('has a signature for the publicKey', async () => {
-      const signingKey = await keystore.getKey(id)
-      const idSignature = await keystore.sign(signingKey, id)
+      const signingKey = await keystore.getKey(wallet.address)
+      const idSignature = await keystore.sign(signingKey, wallet.address)
       const publicKeyAndIdSignature = await wallet.signMessage(identity.publicKey + idSignature)
       assert.equal(identity.signatures.publicKey, publicKeyAndIdSignature)
     })
@@ -66,11 +65,10 @@ describe('Ethereum Identity Provider', function() {
 
   describe('verify identity', () => {
     let identity
-    let wallet, id
+    let wallet
 
     before(async () => {
       wallet = await EthIdentityProvider.createWallet()
-      id = wallet.address
       identity = await IdentityProvider.createIdentity({ keystore, type, wallet })
     })
 
@@ -80,7 +78,7 @@ describe('Ethereum Identity Provider', function() {
     })
 
     it('ethereum identity with incorrect id does not verify', async () => {
-      let identity2 = new Identity('NotAnId', identity.publicKey, identity.signatures.id, identity.signatures.publicKey, identity.type, identity.provider)
+      let identity2 = new Identity('NotAnId', identity.publicKey, identity.type, identity.provider, identity.signatures.id, identity.signatures.publicKey)
       const verified = await IdentityProvider.verifyIdentity(identity2, { wallet })
       assert.equal(verified, false)
     })
@@ -88,17 +86,16 @@ describe('Ethereum Identity Provider', function() {
 
   describe('sign data with an identity', () => {
     let identity
-    let wallet, id
+    let wallet
     const data = 'hello friend'
 
     before(async () => {
       wallet = await EthIdentityProvider.createWallet()
-      id = wallet.address
       identity = await IdentityProvider.createIdentity({ keystore, type, wallet })
     })
 
     it('sign data', async () => {
-      const signingKey = await keystore.getKey(id)
+      const signingKey = await keystore.getKey(wallet.address)
       const expectedSignature = await keystore.sign(signingKey, data)
       const signature = await identity.provider.sign(identity, data, keystore)
       assert.equal(signature, expectedSignature)
@@ -106,7 +103,7 @@ describe('Ethereum Identity Provider', function() {
 
     it('throws an error if private key is not found from keystore', async () => {
       // Remove the key from the keystore (we're using a mock storage in these tests)
-      const modifiedIdentity = new Identity('this id does not exist', identity.publicKey, '<sig>', identity.signatures, identity.type, identity.provider)
+      const modifiedIdentity = new Identity('this id does not exist', identity.publicKey, identity.type, identity.provider, '<sig>', identity.signatures)
 
       let err
       try {
@@ -125,7 +122,7 @@ describe('Ethereum Identity Provider', function() {
       let expectedSignature
 
       before(async () => {
-        signingKey = await keystore.getKey(id)
+        signingKey = await keystore.getKey(wallet.address)
         expectedSignature = await keystore.sign(signingKey, data)
 
         identity = await IdentityProvider.createIdentity({ type, wallet, keystore })

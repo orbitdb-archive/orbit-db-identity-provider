@@ -30,7 +30,7 @@ describe('Identity', function() {
   let identity
 
   before(async () => {
-    identity = new Identity(id, publicKey, idSignature, publicKeyAndIdSignature, type, provider)
+    identity = new Identity(id, publicKey, type, provider, idSignature, publicKeyAndIdSignature)
   })
 
   it('has the correct id', async () => {
@@ -57,8 +57,8 @@ describe('Identity', function() {
     const expected = {
       id: id,
       publicKey: publicKey,
-      signatures: { id: idSignature, publicKey: publicKeyAndIdSignature },
-      type: type
+      type: type,
+      signatures: { id: idSignature, publicKey: publicKeyAndIdSignature }
     }
     assert.deepEqual(identity.toJSON(), expected)
   })
@@ -84,30 +84,10 @@ describe('Identity', function() {
       assert.equal(err, "Error: Invalid public key")
     })
 
-    it('throws and error if identity signature was not given in constructor', async () => {
-      let err
-      try {
-        identity = new Identity('abc', publicKey)
-      } catch (e) {
-        err = e
-      }
-      assert.equal(err, "Error: Signature of the id (idSignature) is required")
-    })
-
-    it('throws and error if identity signature was not given in constructor', async () => {
-      let err
-      try {
-        identity = new Identity('abc', publicKey, idSignature)
-      } catch (e) {
-        err = e
-      }
-      assert.equal(err, "Error: Signature of (publicKey + idSignature) is required")
-    })
-
     it('throws and error if identity provider was not given in constructor', async () => {
       let err
       try {
-        identity = new Identity('abc', publicKey, idSignature, publicKeyAndIdSignature, type)
+        identity = new Identity('abc', publicKey, type)
       } catch (e) {
         err = e
       }
@@ -117,7 +97,7 @@ describe('Identity', function() {
     it('throws and error if identity type was not given in constructor', async () => {
       let err
       try {
-        identity = new Identity('abc', publicKey, idSignature, publicKeyAndIdSignature, null, provider)
+        identity = new Identity('abc', publicKey, null, provider)
       } catch (e) {
         err = e
       }

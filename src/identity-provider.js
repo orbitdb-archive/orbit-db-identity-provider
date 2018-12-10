@@ -16,58 +16,50 @@ const getHandlerFor = (type) => {
 
 class IdentityProvider {
   constructor(options = {}) {
-    this._keystore = options.keystore || Keystore.create(options.keypath || './orbitdb/ipkeys')
+    this._odbip = options.odbip || new OrbitDBIdentityProvider(options)
   }
 
   async sign (identity, data) {
-    const signingKey = await this._keystore.getKey(identity.id)
-    if (!signingKey)
-      throw new Error(`Private signing key not found from Keystore`)
-
-    const signature = await this._keystore.sign(signingKey, data)
-    return signature
+    return this._odbip.sign(identity.id, data)
   }
 
   async verify (signature, publicKey, data) {
-    return this._keystore.verify(signature, publicKey, data)
+    return this._odbip.verify(signature, publicKey, data)
   }
 
   async createIdentity(options = {}) {
+    if (options.type === 'orbitdb') {
+      const id = options.id
+      const publicKey = await this._odbip.getPublicKey({ id })
+      return new Identity(id, publicKey, options.type, this)
+    }
+
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
-    const id = await identityProvider.getPublicKey(options)
-    const { publicKey, idSignature } = await this.signPublicKey(id, options)
+    const externalPublicKey = await identityProvider.getPublicKey(options)
+    const { publicKey, idSignature } = await this._odbip.signPublicKey(externalPublicKey, options)
     const pubKeyIdSignature = await identityProvider.signPubKeySignature(publicKey + idSignature, options)
-    return new Identity(id, publicKey, idSignature, pubKeyIdSignature, IdentityProvider.type, this)
-  }
-
-  async signPublicKey(id, options = {}) {
-    const keystore = this._keystore
-    const key = await keystore.getKey(id) || await keystore.createKey(id)
-    const publicKey = await key.getPublic('hex')
-    const idSignature = await keystore.sign(key, id)
-    return { publicKey, idSignature }
+    return new Identity(externalPublicKey, publicKey, options.type, this, idSignature, pubKeyIdSignature)
   }
 
   async verifyIdentity (identity, options = {}) {
-    const verified = await this._keystore.verify(
-      identity.signatures.id,
-      identity.publicKey,
-      identity.id
-    )
-    options = Object.assign({}, options, { provider: this })
-    return verified && await IdentityProvider.verifyIdentity(identity, options)
+    if (options.type === 'orbitdb') {
+      console.warn(`No external identity to verify`)
+      return true
+    }
+    const verified = await this._odbip.verifyIdentity(identity) // verify odbip signed signature
+    return verified && await IdentityProvider.verifyIdentity(identity, options) // verify externally signed signature
   }
 
   static async verifyIdentity(identity, options = {}) {
     const IdentityProvider = getHandlerFor(identity.type)
-    return await IdentityProvider.verifyIdentity(identity, options)
+    return IdentityProvider.verifyIdentity(identity, options)
   }
 
   static async createIdentity (options = {}) {
     options = Object.assign({}, { type }, options )
     const identityProvider = new IdentityProvider(options)
-    return await identityProvider.createIdentity(options)
+    return identityProvider.createIdentity(options)
   }
 
   static isSupported (type) {

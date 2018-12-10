@@ -2,21 +2,13 @@
 const isDefined = require('./is-defined')
 
 class Identity {
-  constructor (id, publicKey, idSignature, pubKeyIdSignature, type, provider) {
+  constructor (id, publicKey, type, provider, idSignature, pubKeyIdSignature) {
     if (!isDefined(id)) {
       throw new Error('Identity id is required')
     }
 
     if (!isDefined(publicKey)) {
       throw new Error('Invalid public key')
-    }
-
-    if (!isDefined(idSignature)) {
-      throw new Error('Signature of the id (idSignature) is required')
-    }
-
-    if (!isDefined(pubKeyIdSignature)) {
-      throw new Error('Signature of (publicKey + idSignature) is required')
     }
 
     if (!isDefined(type)) {
@@ -29,8 +21,10 @@ class Identity {
 
     this._id = id
     this._publicKey = publicKey
-    this._signatures = Object.assign({}, { id: idSignature }, { publicKey: pubKeyIdSignature } )
     this._type = type
+    if (idSignature && pubKeyIdSignature) {
+      this._signatures = Object.assign({}, { id: idSignature }, { publicKey: pubKeyIdSignature } )
+    }
     this._provider = provider
   }
 
@@ -47,7 +41,10 @@ class Identity {
   }
 
   get signatures() {
-    return this._signatures
+    if (this._signatures) {
+      return this._signatures
+    }
+    console.warn(`Identity does not have any signatures`)
   }
 
   get type() {
@@ -59,12 +56,11 @@ class Identity {
   }
 
   toJSON () {
-    return {
+    return Object.assign({}, {
       id: this._id,
       publicKey: this._publicKey,
-      signatures: this._signatures,
       type: this._type
-    }
+    }, this._signatures ? { signatures: this._signatures } : {} )
   }
 }
 
