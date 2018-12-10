@@ -4,7 +4,7 @@ const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
 const type = 'orbitdb'
 let supportedTypes = {
-  'orbitdb': OrbitDBIdentityProvider,
+  'orbitdb': OrbitDBIdentityProvider
 }
 
 const getHandlerFor = (type) => {
@@ -15,24 +15,24 @@ const getHandlerFor = (type) => {
 }
 
 class IdentityProvider {
-  constructor(options = {}) {
+  constructor (options = {}) {
     this._keystore = options.keystore || Keystore.create(options.keypath || './orbitdb/ipkeys')
   }
 
   async sign (identity, data) {
     const signingKey = await this._keystore.getKey(identity.id)
-    if (!signingKey)
+    if (!signingKey) {
       throw new Error(`Private signing key not found from Keystore`)
+    }
 
-    const signature = await this._keystore.sign(signingKey, data)
-    return signature
+    return this._keystore.sign(signingKey, data)
   }
 
   async verify (signature, publicKey, data) {
     return this._keystore.verify(signature, publicKey, data)
   }
 
-  async createIdentity(options = {}) {
+  async createIdentity (options = {}) {
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
     const id = await identityProvider.getPublicKey(options)
@@ -41,7 +41,7 @@ class IdentityProvider {
     return new Identity(id, publicKey, idSignature, pubKeyIdSignature, IdentityProvider.type, this)
   }
 
-  async signPublicKey(id, options = {}) {
+  async signPublicKey (id, options = {}) {
     const keystore = this._keystore
     const key = await keystore.getKey(id) || await keystore.createKey(id)
     const publicKey = await key.getPublic('hex')
@@ -56,18 +56,18 @@ class IdentityProvider {
       identity.id
     )
     options = Object.assign({}, options, { provider: this })
-    return verified && await IdentityProvider.verifyIdentity(identity, options)
+    return verified && IdentityProvider.verifyIdentity(identity, options)
   }
 
-  static async verifyIdentity(identity, options = {}) {
+  static async verifyIdentity (identity, options = {}) {
     const IdentityProvider = getHandlerFor(identity.type)
-    return await IdentityProvider.verifyIdentity(identity, options)
+    return IdentityProvider.verifyIdentity(identity, options)
   }
 
   static async createIdentity (options = {}) {
-    options = Object.assign({}, { type }, options )
+    options = Object.assign({}, { type }, options)
     const identityProvider = new IdentityProvider(options)
-    return await identityProvider.createIdentity(options)
+    return identityProvider.createIdentity(options)
   }
 
   static isSupported (type) {

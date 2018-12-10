@@ -4,7 +4,7 @@ const Keystore = require('orbit-db-keystore')
 const type = 'orbitdb'
 
 class OrbitDBIdentityProvider extends IdentityProviderInterface {
-  constructor(options = {}) {
+  constructor (options = {}) {
     super()
     this._keystore = options.keystore || Keystore.create(options.keypath || './orbitdb/identity/keys')
   }
@@ -12,23 +12,25 @@ class OrbitDBIdentityProvider extends IdentityProviderInterface {
   // Returns the type of the identity provider
   static get type () { return type }
 
-  async getPublicKey(options = {}) {
+  async getPublicKey (options = {}) {
     const id = options.id
-    if (!id)
+    if (!id) {
       throw new Error('id is required')
+    }
 
     const keystore = options.keystore || this._keystore
     const key = await keystore.getKey(id) || await keystore.createKey(id)
     return key.getPublic('hex')
   }
 
-  async signPubKeySignature(pubKeyIdSig, options = {}) {
+  async signPubKeySignature (pubKeyIdSig, options = {}) {
     const keystore = options.keystore || this._keystore
     const id = options.id
     const key = await keystore.getKey(id)
-    if(!key)
+    if (!key) {
       throw new Error(`Signing key for '${id}' not found`)
-    return await keystore.sign(key, pubKeyIdSig)
+    }
+    return keystore.sign(key, pubKeyIdSig)
   }
 
   static async verifyIdentity (identity, options = {}) {

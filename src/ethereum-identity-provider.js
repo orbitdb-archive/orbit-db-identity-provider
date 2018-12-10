@@ -4,7 +4,7 @@ const { Wallet, utils } = require('ethers')
 const type = 'ethereum'
 
 class EthIdentityProvider extends IdentityProvider {
-  constructor(options = {}) {
+  constructor (options = {}) {
     super()
     this.wallet = options.wallet
   }
@@ -12,20 +12,20 @@ class EthIdentityProvider extends IdentityProvider {
   static get type () { return type }
 
   // Returns the signer's id
-  async getPublicKey(options = {}) {
+  async getPublicKey (options = {}) {
     const wallet = this.wallet || await EthIdentityProvider.createWallet(options)
-    if (!wallet)
+    if (!wallet) {
       throw new Error(`wallet instance is required`)
+    }
     return wallet.address
   }
 
   // Returns a signature of pubkeysignature
-  async signPubKeySignature(pubKeySignature, options = {}) {
+  async signPubKeySignature (pubKeySignature, options = {}) {
     const wallet = this.wallet
-    if (!wallet)
-      throw new Error(`wallet is required`)
+    if (!wallet) { throw new Error(`wallet is required`) }
 
-    return await wallet.signMessage(pubKeySignature)
+    return wallet.signMessage(pubKeySignature)
   }
 
   static async verifyIdentity (identity, options = {}) {
@@ -36,16 +36,19 @@ class EthIdentityProvider extends IdentityProvider {
 
   static async createWallet (options = {}) {
     if (options.mnemonicOpts) {
-      if(!options.mnemonicOpts.mnemonic)
+      if (!options.mnemonicOpts.mnemonic) {
         throw new Error(`mnemonic is required`)
+      }
       return Wallet.fromMnemonic(options.mnemonicOpts.mnemonic, options.mnemonicOpts.path, options.mnemonicOpts.wordlist)
     }
     if (options.encryptedJsonOpts) {
-      if(!options.encryptedJsonOpts.json)
+      if (!options.encryptedJsonOpts.json) {
         throw new Error(`encrypted json is required`)
-      if(!options.encryptedJsonOpts.password)
+      }
+      if (!options.encryptedJsonOpts.password) {
         throw new Error(`password for encrypted json is required`)
-      return await Wallet.fromMnemonic(options.encryptedJsonOpts.json, options.encryptedJsonOpts.password, options.encryptedJsonOpts.progressCallback)
+      }
+      return Wallet.fromMnemonic(options.encryptedJsonOpts.json, options.encryptedJsonOpts.password, options.encryptedJsonOpts.progressCallback)
     }
     return Wallet.createRandom()
   }

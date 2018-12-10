@@ -1,12 +1,10 @@
 'use strict'
 class IdentityProviderInterface {
-  constructor() {}
-
   /* Return publicKey of identity */
-  async getPublicKey(options) {}
+  async getPublicKey (options) {}
 
   /* Return signature of OrbitDB public key signature */
-  async signPubKeySignature(pubKeySignature, options) {}
+  async signPubKeySignature (pubKeySignature, options) {}
 
   /* Verify a signature of OrbitDB public key signature */
   static async verifyIdentity (identity, options) {}
