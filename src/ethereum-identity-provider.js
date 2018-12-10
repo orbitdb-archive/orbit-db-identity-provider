@@ -1,35 +1,34 @@
 'use strict'
-const IdentityProvider = require('./identity-provider')
+const IdentityProvider = require('./identity-provider-interface')
 const { Wallet, utils } = require('ethers')
 const type = 'ethereum'
 
 class EthIdentityProvider extends IdentityProvider {
-  constructor(options) {
+  constructor(options = {}) {
     super()
+    this.wallet = options.wallet
   }
-
   // Returns the type of the identity provider
   static get type () { return type }
 
   // Returns the signer's id
-  async createId(options = {}) {
-    const wallet = options.wallet || await EthIdentityProvider.createWallet(options)
+  async getPublicKey(options = {}) {
+    const wallet = this.wallet || await EthIdentityProvider.createWallet(options)
     if (!wallet)
       throw new Error(`wallet instance is required`)
-    this.wallet = wallet
     return wallet.address
   }
 
   // Returns a signature of pubkeysignature
-  async signIdentity(pubKeySignature, options = {}) {
-    const wallet = options.wallet || this.wallet
+  async signPubKeySignature(pubKeySignature, options = {}) {
+    const wallet = this.wallet
     if (!wallet)
       throw new Error(`wallet is required`)
 
     return await wallet.signMessage(pubKeySignature)
   }
 
-  static async verifyIdentity (identity) {
+  static async verifyIdentity (identity, options = {}) {
     // Verify that identity was signed by the id
     const signerAddress = utils.verifyMessage(identity.publicKey + identity.signatures.id, identity.signatures.publicKey)
     return (signerAddress === identity.id)
