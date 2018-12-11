@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/orbitdb/orbit-db-identity-provider#readme",
   "devDependencies": {
+    "ethers": "^4.0.18",
     "mocha": "^5.2.0",
     "orbit-db-keystore": "github:orbitdb/orbit-db-keystore#fix/verification",
     "rimraf": "^2.6.2",
@@ -28,8 +29,5 @@
     "env": [
       "mocha"
     ]
-  },
-  "dependencies": {
-    "ethers": "^4.0.18"
   }
 }
