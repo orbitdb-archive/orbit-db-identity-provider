@@ -1,12 +1,13 @@
 'use strict'
 const IdentityProviderInterface = require('./identity-provider-interface')
 const Keystore = require('orbit-db-keystore')
+const keypath = './orbitdb/identity/keys'
 const type = 'orbitdb'
 
 class OrbitDBIdentityProvider extends IdentityProviderInterface {
   constructor (options = {}) {
     super()
-    this._keystore = options.keystore || Keystore.create(options.keypath || './orbitdb/identity/keys')
+    this._keystore = options.keystore || Keystore.create(options.keypath || keypath)
   }
 
   // Returns the type of the identity provider
