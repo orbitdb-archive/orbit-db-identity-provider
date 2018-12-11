@@ -48,7 +48,7 @@ class EthIdentityProvider extends IdentityProvider {
       if (!options.encryptedJsonOpts.password) {
         throw new Error(`password for encrypted json is required`)
       }
-      return Wallet.fromMnemonic(options.encryptedJsonOpts.json, options.encryptedJsonOpts.password, options.encryptedJsonOpts.progressCallback)
+      return Wallet.fromEncryptedJson(options.encryptedJsonOpts.json, options.encryptedJsonOpts.password, options.encryptedJsonOpts.progressCallback)
     }
     return Wallet.createRandom()
   }
