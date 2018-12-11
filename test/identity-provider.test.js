@@ -29,7 +29,7 @@ describe('Identity Provider', function () {
       let identity, externalPublicKey
 
       before(async () => {
-        identity = await IdentityProviders.createIdentity({ id, keystore })
+        identity = await IdentityProviders.createIdentity({ id, keystore, keypath })
         let key = await keystore.getKey(id)
         externalPublicKey = key.getPublic('hex')
       })
@@ -74,7 +74,7 @@ describe('Identity Provider', function () {
         const expectedPkSignature = '304402201b17da87ce27f4f4a5541c1af1f25bb748fac16890d2dc5c44c3011902007e9d022024292230343221b8745323d2c80fac3c52a69ef7af31dae7284bf2daab0e1a19'
         const expectedSignature = '3044022015b33469bdd666d435c8578652d0c8ab3c92fa7cf4bc8e1e2ff383a3ea49972a022056f6b0bc3662e78f35e770cc3ae867d7ed253a2fee9a3754ff7938386221c447'
 
-        identity = await IdentityProviders.createIdentity({ id, keystore: savedKeysKeystore })
+        identity = await IdentityProviders.createIdentity({ id, keypath: savedKeysPath })
         let key = await savedKeysKeystore.getKey(id)
         assert.strictEqual(identity.id, key.getPublic('hex'))
         assert.strictEqual(identity.publicKey, expectedPublicKey)
@@ -90,7 +90,7 @@ describe('Identity Provider', function () {
       let identity
       before(async () => {
         savedKeysKeystore = Keystore.create(savedKeysPath)
-        identity = await IdentityProviders.createIdentity({ id, keystore: savedKeysKeystore })
+        identity = await IdentityProviders.createIdentity({ id, keypath: savedKeysPath })
       })
 
       it('has the correct id', async () => {
@@ -166,7 +166,7 @@ describe('Identity Provider', function () {
     let identity
 
     it('identity verifies', async () => {
-      identity = await IdentityProviders.createIdentity({ id, type, keystore })
+      identity = await IdentityProviders.createIdentity({ id, type, keypath })
       const verified = await identity.provider.verifyIdentity(identity)
       assert.strictEqual(verified, true)
     })
