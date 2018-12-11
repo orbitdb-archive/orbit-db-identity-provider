@@ -37,12 +37,12 @@ class IdentityProvider {
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
     const id = await identityProvider.getPublicKey(options)
-    const { publicKey, idSignature } = await this.signPublicKey(id)
-    const pubKeyIdSignature = await identityProvider.signPubKeySignature(publicKey + idSignature, options)
+    const { publicKey, idSignature } = await this.signId(id)
+    const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
     return new Identity(id, publicKey, idSignature, pubKeyIdSignature, IdentityProvider.type, this)
   }
 
-  async signPublicKey (id) {
+  async signId (id) {
     const keystore = this._keystore
     const key = await keystore.getKey(id) || await keystore.createKey(id)
     const publicKey = await key.getPublic('hex')

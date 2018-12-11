@@ -24,9 +24,12 @@ class OrbitDBIdentityProvider extends IdentityProviderInterface {
     return key.getPublic('hex')
   }
 
-  async signPubKeySignature (pubKeyIdSig, options = {}) {
-    const keystore = this._keystore
+  async signIdentity (pubKeyIdSig, options = {}) {
     const id = options.id
+    if (!id) {
+      throw new Error('id is required')
+    }
+    const keystore = this._keystore
     const key = await keystore.getKey(id)
     if (!key) {
       throw new Error(`Signing key for '${id}' not found`)

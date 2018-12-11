@@ -149,7 +149,7 @@ describe('Identity Provider', function () {
     it('false signature doesn\'t verify', async () => {
       class IP {
         async getPublicKey () { return 'pubKey' }
-        async signPubKeySignature (data) { return `false signature '${data}'` }
+        async signIdentity (data) { return `false signature '${data}'` }
         static async verifyIdentity (data) { return false }
         static get type () { return 'fake' }
       }

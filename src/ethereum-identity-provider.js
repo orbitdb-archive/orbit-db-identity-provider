@@ -20,11 +20,11 @@ class EthIdentityProvider extends IdentityProvider {
   }
 
   // Returns a signature of pubkeysignature
-  async signPubKeySignature (pubKeySignature, options = {}) {
+  async signIdentity (data, options = {}) {
     const wallet = this.wallet
     if (!wallet) { throw new Error(`wallet is required`) }
 
-    return wallet.signMessage(pubKeySignature)
+    return wallet.signMessage(data)
   }
 
   static async verifyIdentity (identity, options = {}) {
