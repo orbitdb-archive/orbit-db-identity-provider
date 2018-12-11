@@ -20,11 +20,11 @@ describe('Ethereum Identity Provider', function () {
 
   describe('create an ethereum identity', () => {
     let identity
-    let wallet, id
+    let wallet
 
     before(async () => {
-      wallet = await EthIdentityProvider.createWallet()
-      id = wallet.address
+      const ethIdentityProvider = new EthIdentityProvider()
+      wallet = await ethIdentityProvider._createWallet()
       identity = await IdentityProvider.createIdentity({ type, keystore, wallet })
     })
 
@@ -33,27 +33,27 @@ describe('Ethereum Identity Provider', function () {
     })
 
     it('created a key for id in keystore', async () => {
-      const key = await keystore.getKey(id)
+      const key = await keystore.getKey(wallet.address)
       assert.notStrictEqual(key, undefined)
     })
 
     it('has the correct public key', async () => {
-      const signingKey = await keystore.getKey(id)
+      const signingKey = await keystore.getKey(wallet.address)
       assert.notStrictEqual(signingKey, undefined)
       assert.strictEqual(identity.publicKey, signingKey.getPublic('hex'))
     })
 
     it('has a signature for the id', async () => {
-      const signingKey = await keystore.getKey(id)
-      const idSignature = await keystore.sign(signingKey, id)
-      const verifies = await keystore.verify(idSignature, signingKey.getPublic('hex'), id)
+      const signingKey = await keystore.getKey(wallet.address)
+      const idSignature = await keystore.sign(signingKey, wallet.address)
+      const verifies = await keystore.verify(idSignature, signingKey.getPublic('hex'), wallet.address)
       assert.strictEqual(verifies, true)
       assert.strictEqual(identity.signatures.id, idSignature)
     })
 
     it('has a signature for the publicKey', async () => {
-      const signingKey = await keystore.getKey(id)
-      const idSignature = await keystore.sign(signingKey, id)
+      const signingKey = await keystore.getKey(wallet.address)
+      const idSignature = await keystore.sign(signingKey, wallet.address)
       const publicKeyAndIdSignature = await wallet.signMessage(identity.publicKey + idSignature)
       assert.strictEqual(identity.signatures.publicKey, publicKeyAndIdSignature)
     })
@@ -61,37 +61,33 @@ describe('Ethereum Identity Provider', function () {
 
   describe('verify identity', () => {
     let identity
-    let wallet
 
     before(async () => {
-      wallet = await EthIdentityProvider.createWallet()
-      identity = await IdentityProvider.createIdentity({ keystore, type, wallet })
+      identity = await IdentityProvider.createIdentity({ keystore, type })
     })
 
     it('ethereum identity verifies', async () => {
-      const verified = await IdentityProvider.verifyIdentity(identity, { wallet })
+      const verified = await IdentityProvider.verifyIdentity(identity)
       assert.strictEqual(verified, true)
     })
 
     it('ethereum identity with incorrect id does not verify', async () => {
       let identity2 = new Identity('NotAnId', identity.publicKey, identity.signatures.id, identity.signatures.publicKey, identity.type, identity.provider)
-      const verified = await IdentityProvider.verifyIdentity(identity2, { wallet })
+      const verified = await IdentityProvider.verifyIdentity(identity2)
       assert.strictEqual(verified, false)
     })
   })
 
   describe('sign data with an identity', () => {
     let identity
-    let wallet
     const data = 'hello friend'
 
     before(async () => {
-      wallet = await EthIdentityProvider.createWallet()
-      identity = await IdentityProvider.createIdentity({ keystore, type, wallet })
+      identity = await IdentityProvider.createIdentity({ keystore, type })
     })
 
     it('sign data', async () => {
-      const signingKey = await keystore.getKey(wallet.address)
+      const signingKey = await keystore.getKey(identity.id)
       const expectedSignature = await keystore.sign(signingKey, data)
       const signature = await identity.provider.sign(identity, data, keystore)
       assert.strictEqual(signature, expectedSignature)
@@ -117,7 +113,7 @@ describe('Ethereum Identity Provider', function () {
       let signature
 
       before(async () => {
-        identity = await IdentityProvider.createIdentity({ type, wallet, keystore })
+        identity = await IdentityProvider.createIdentity({ type, keystore })
         signature = await identity.provider.sign(identity, data, keystore)
       })
 

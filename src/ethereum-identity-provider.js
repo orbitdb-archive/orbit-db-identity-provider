@@ -14,7 +14,7 @@ class EthIdentityProvider extends IdentityProvider {
   // Returns the signer's id
   async getPublicKey (options = {}) {
     if (!this.wallet) {
-      this.wallet = await EthIdentityProvider.createWallet(options)
+      this.wallet = await this._createWallet(options)
     }
     return this.wallet.address
   }
@@ -33,7 +33,7 @@ class EthIdentityProvider extends IdentityProvider {
     return (signerAddress === identity.id)
   }
 
-  static async createWallet (options = {}) {
+  async _createWallet (options = {}) {
     if (options.mnemonicOpts) {
       if (!options.mnemonicOpts.mnemonic) {
         throw new Error(`mnemonic is required`)
