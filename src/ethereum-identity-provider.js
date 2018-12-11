@@ -13,11 +13,10 @@ class EthIdentityProvider extends IdentityProvider {
 
   // Returns the signer's id
   async getPublicKey (options = {}) {
-    const wallet = this.wallet || await EthIdentityProvider.createWallet(options)
-    if (!wallet) {
-      throw new Error(`wallet instance is required`)
+    if (!this.wallet) {
+      this.wallet = await EthIdentityProvider.createWallet(options)
     }
-    return wallet.address
+    return this.wallet.address
   }
 
   // Returns a signature of pubkeysignature
