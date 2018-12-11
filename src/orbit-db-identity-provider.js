@@ -13,7 +13,7 @@ class OrbitDBIdentityProvider extends IdentityProviderInterface {
   // Returns the type of the identity provider
   static get type () { return type }
 
-  async getPublicKey (options = {}) {
+  async getId (options = {}) {
     const id = options.id
     if (!id) {
       throw new Error('id is required')

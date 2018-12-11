@@ -36,7 +36,7 @@ class IdentityProvider {
   async createIdentity (options = {}) {
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
-    const id = await identityProvider.getPublicKey(options)
+    const id = await identityProvider.getId(options)
     const { publicKey, idSignature } = await this.signId(id)
     const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
     return new Identity(id, publicKey, idSignature, pubKeyIdSignature, IdentityProvider.type, this)

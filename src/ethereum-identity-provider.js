@@ -12,7 +12,7 @@ class EthIdentityProvider extends IdentityProvider {
   static get type () { return type }
 
   // Returns the signer's id
-  async getPublicKey (options = {}) {
+  async getId (options = {}) {
     if (!this.wallet) {
       this.wallet = await this._createWallet(options)
     }
