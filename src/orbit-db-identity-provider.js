@@ -19,13 +19,13 @@ class OrbitDBIdentityProvider extends IdentityProviderInterface {
       throw new Error('id is required')
     }
 
-    const keystore = options.keystore || this._keystore
+    const keystore = this._keystore
     const key = await keystore.getKey(id) || await keystore.createKey(id)
     return key.getPublic('hex')
   }
 
   async signPubKeySignature (pubKeyIdSig, options = {}) {
-    const keystore = options.keystore || this._keystore
+    const keystore = this._keystore
     const id = options.id
     const key = await keystore.getKey(id)
     if (!key) {
