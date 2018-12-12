@@ -7,7 +7,7 @@ class IdentityProvider {
   async signIdentity (data, options) {}
 
   /* Verify a signature of OrbitDB public key signature */
-  static async verifyIdentity (identity, options) {}
+  static async verifyIdentity (identity) {}
 
   /* Return the type for this identity provider */
   static get type () {

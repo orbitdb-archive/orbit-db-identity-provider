@@ -50,8 +50,8 @@ class Identities {
     return { publicKey, idSignature }
   }
 
-  async verifyIdentity (identity, options = {}) {
-    const verified = await Keystore.verify(
+  async verifyIdentity (identity) {
+    const verified = await this._keystore.verify(
       identity.signatures.id,
       identity.publicKey,
       identity.id

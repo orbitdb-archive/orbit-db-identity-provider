@@ -27,7 +27,7 @@ class EthIdentityProvider extends IdentityProvider {
     return wallet.signMessage(data)
   }
 
-  static async verifyIdentity (identity, options = {}) {
+  static async verifyIdentity (identity) {
     // Verify that identity was signed by the id
     const signerAddress = utils.verifyMessage(identity.publicKey + identity.signatures.id, identity.signatures.publicKey)
     return (signerAddress === identity.id)
