@@ -1,6 +1,7 @@
 'use strict'
+
 class IdentityProvider {
-  /* Return id of identity (to be signed by orbit-db public key)*/
+  /* Return id of identity (to be signed by orbit-db public key) */
   async getId (options) {}
 
   /* Return signature of OrbitDB public key signature */
