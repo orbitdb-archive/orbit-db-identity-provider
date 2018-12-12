@@ -56,12 +56,12 @@ class Identities {
       identity.publicKey,
       identity.id
     )
-    return verified && Identities.verifyIdentity(identity, options)
+    return verified && Identities.verifyIdentity(identity)
   }
 
-  static async verifyIdentity (identity, options = {}) {
+  static async verifyIdentity (identity) {
     const IdentityProvider = getHandlerFor(identity.type)
-    return IdentityProvider.verifyIdentity(identity, options)
+    return IdentityProvider.verifyIdentity(identity)
   }
 
   static async createIdentity (options = {}) {
