@@ -1,5 +1,5 @@
 'use strict'
-const IdentityProvider = require('./identity-provider-interface')
+const IdentityProvider = require('./identity-provider')
 const { Wallet, utils } = require('ethers')
 const type = 'ethereum'
 

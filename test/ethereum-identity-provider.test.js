@@ -4,7 +4,7 @@ const assert = require('assert')
 const path = require('path')
 const rmrf = require('rimraf')
 const Keystore = require('orbit-db-keystore')
-const IdentityProvider = require('../src/identity-provider')
+const Identities = require('../src/identities')
 const EthIdentityProvider = require('../src/ethereum-identity-provider')
 const Identity = require('../src/identity')
 const keypath = path.resolve('./test/keys')
@@ -14,7 +14,7 @@ const type = EthIdentityProvider.type
 describe('Ethereum Identity Provider', function () {
   before(async () => {
     rmrf.sync(keypath)
-    IdentityProvider.addIdentityProvider(EthIdentityProvider)
+    Identities.addIdentityProvider(EthIdentityProvider)
     keystore = Keystore.create(keypath)
   })
 
@@ -25,7 +25,7 @@ describe('Ethereum Identity Provider', function () {
     before(async () => {
       const ethIdentityProvider = new EthIdentityProvider()
       wallet = await ethIdentityProvider._createWallet()
-      identity = await IdentityProvider.createIdentity({ type, keystore, wallet })
+      identity = await Identities.createIdentity({ type, keystore, wallet })
     })
 
     it('has the correct id', async () => {
@@ -63,17 +63,17 @@ describe('Ethereum Identity Provider', function () {
     let identity
 
     before(async () => {
-      identity = await IdentityProvider.createIdentity({ keystore, type })
+      identity = await Identities.createIdentity({ keystore, type })
     })
 
     it('ethereum identity verifies', async () => {
-      const verified = await IdentityProvider.verifyIdentity(identity)
+      const verified = await Identities.verifyIdentity(identity)
       assert.strictEqual(verified, true)
     })
 
     it('ethereum identity with incorrect id does not verify', async () => {
       let identity2 = new Identity('NotAnId', identity.publicKey, identity.signatures.id, identity.signatures.publicKey, identity.type, identity.provider)
-      const verified = await IdentityProvider.verifyIdentity(identity2)
+      const verified = await Identities.verifyIdentity(identity2)
       assert.strictEqual(verified, false)
     })
   })
@@ -83,7 +83,7 @@ describe('Ethereum Identity Provider', function () {
     const data = 'hello friend'
 
     before(async () => {
-      identity = await IdentityProvider.createIdentity({ keystore, type })
+      identity = await Identities.createIdentity({ keystore, type })
     })
 
     it('sign data', async () => {
@@ -113,7 +113,7 @@ describe('Ethereum Identity Provider', function () {
       let signature
 
       before(async () => {
-        identity = await IdentityProvider.createIdentity({ type, keystore })
+        identity = await Identities.createIdentity({ type, keystore })
         signature = await identity.provider.sign(identity, data, keystore)
       })
 
