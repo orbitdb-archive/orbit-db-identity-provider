@@ -7,7 +7,7 @@ const type = 'orbitdb'
 class OrbitDBIdentityProvider extends IdentityProviderInterface {
   constructor (options = {}) {
     super()
-    this._keystore = options.keystore || Keystore.create(options.keypath || keypath)
+    this._keystore = Keystore.create(options.keypath || keypath)
   }
 
   // Returns the type of the identity provider
@@ -37,15 +37,13 @@ class OrbitDBIdentityProvider extends IdentityProviderInterface {
     return keystore.sign(key, pubKeyIdSig)
   }
 
-  static async verifyIdentity (identity, options = {}) {
+  static async verifyIdentity (identity) {
     // Verify that identity was signed by the ID
-    const keystore = options.keystore || options.provider._keystore
-    const verified = await keystore.verify(
+    return Keystore.verify(
       identity.signatures.publicKey,
       identity.id,
       identity.publicKey + identity.signatures.id
     )
-    return verified
   }
 }
 

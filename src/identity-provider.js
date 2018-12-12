@@ -30,7 +30,7 @@ class IdentityProvider {
   }
 
   async verify (signature, publicKey, data) {
-    return this._keystore.verify(signature, publicKey, data)
+    return Keystore.verify(signature, publicKey, data)
   }
 
   async createIdentity (options = {}) {
@@ -51,12 +51,11 @@ class IdentityProvider {
   }
 
   async verifyIdentity (identity, options = {}) {
-    const verified = await this._keystore.verify(
+    const verified = await Keystore.verify(
       identity.signatures.id,
       identity.publicKey,
       identity.id
     )
-    options = Object.assign({}, options, { provider: this })
     return verified && IdentityProvider.verifyIdentity(identity, options)
   }
 
