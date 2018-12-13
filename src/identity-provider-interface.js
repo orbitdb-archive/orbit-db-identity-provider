@@ -15,6 +15,11 @@ class IdentityProvider {
     throw new Error(`'static get type ()' needs to be defined in the inheriting class`)
   }
 
+  /*
+    Return the type for this identity-procider
+    NOTE! This is the only property of the interface that
+    shouldn't be overridden in the inherited IdentityProvider
+  */
   get type () {
     return this.constructor.type
   }
