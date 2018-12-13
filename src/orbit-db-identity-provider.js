@@ -1,5 +1,5 @@
 'use strict'
-const IdentityProvider = require('./identity-provider')
+const IdentityProvider = require('./identity-provider-interface')
 const Keystore = require('orbit-db-keystore')
 const identityKeysPath = './orbitdb/identity/keys'
 const type = 'orbitdb'
