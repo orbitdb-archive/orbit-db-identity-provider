@@ -3,7 +3,7 @@ const Identity = require('./identity')
 const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
 const type = 'orbitdb'
-const keypath = './orbitdb/identity/keys'
+const signingKeysPath = './orbitdb/identity/keys'
 let supportedTypes = {
   'orbitdb': OrbitDBIdentityProvider
 }
@@ -17,7 +17,7 @@ const getHandlerFor = (type) => {
 
 class Identities {
   constructor (options = {}) {
-    this._keystore = options.keystore || Keystore.create(options.keypath || keypath)
+    this._keystore = options.keystore || Keystore.create(options.signingKeysPath || signingKeysPath)
   }
 
   async sign (identity, data) {
