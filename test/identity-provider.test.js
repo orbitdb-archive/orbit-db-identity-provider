@@ -26,16 +26,16 @@ describe('Identity Provider', function () {
   describe('create an identity', () => {
     describe('create a new identity', () => {
       let id = 'A'
-      let identity, externalPublicKey
+      let identity, externalId
 
       before(async () => {
         identity = await Identities.createIdentity({ id, keypath })
         let key = await keystore.getKey(id)
-        externalPublicKey = key.getPublic('hex')
+        externalId = key.getPublic('hex')
       })
 
       it('has the correct id', async () => {
-        assert.strictEqual(identity.id, externalPublicKey)
+        assert.strictEqual(identity.id, externalId)
       })
 
       it('created a key for id in keystore', async () => {
@@ -44,23 +44,23 @@ describe('Identity Provider', function () {
       })
 
       it('has the correct public key', async () => {
-        const signingKey = keystore.getKey(externalPublicKey)
+        const signingKey = keystore.getKey(externalId)
         assert.notStrictEqual(signingKey, undefined)
         assert.strictEqual(identity.publicKey, signingKey.getPublic('hex'))
       })
 
       it('has a signature for the id', async () => {
-        const signingKey = await keystore.getKey(externalPublicKey)
-        const idSignature = await keystore.sign(signingKey, externalPublicKey)
+        const signingKey = await keystore.getKey(externalId)
+        const idSignature = await keystore.sign(signingKey, externalId)
         const publicKey = signingKey.getPublic('hex')
-        const verifies = await Keystore.verify(idSignature, publicKey, externalPublicKey)
+        const verifies = await Keystore.verify(idSignature, publicKey, externalId)
         assert.strictEqual(verifies, true)
         assert.strictEqual(identity.signatures.id, idSignature)
       })
 
       it('has a signature for the publicKey', async () => {
-        const signingKey = await keystore.getKey(externalPublicKey)
-        const idSignature = await keystore.sign(signingKey, externalPublicKey)
+        const signingKey = await keystore.getKey(externalId)
+        const idSignature = await keystore.sign(signingKey, externalId)
         const externalKey = await keystore.getKey(id)
         const publicKeyAndIdSignature = await keystore.sign(externalKey, identity.publicKey + idSignature)
         assert.strictEqual(identity.signatures.publicKey, publicKeyAndIdSignature)
