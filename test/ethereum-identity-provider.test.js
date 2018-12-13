@@ -18,6 +18,10 @@ describe('Ethereum Identity Provider', function () {
     keystore = Keystore.create(keypath)
   })
 
+  after(async () => {
+    rmrf.sync(keypath)
+  })
+
   describe('create an ethereum identity', () => {
     let identity
     let wallet
