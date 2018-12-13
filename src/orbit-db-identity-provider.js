@@ -24,7 +24,7 @@ class OrbitDBIdentityProvider extends IdentityProvider {
     return key.getPublic('hex')
   }
 
-  async signIdentity (pubKeyIdSig, options = {}) {
+  async signIdentity (data, options = {}) {
     const id = options.id
     if (!id) {
       throw new Error('id is required')
@@ -34,7 +34,7 @@ class OrbitDBIdentityProvider extends IdentityProvider {
     if (!key) {
       throw new Error(`Signing key for '${id}' not found`)
     }
-    return keystore.sign(key, pubKeyIdSig)
+    return keystore.sign(key, data)
   }
 
   static async verifyIdentity (identity) {
