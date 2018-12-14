@@ -4,12 +4,6 @@ const assert = require('assert')
 const Identity = require('../src/identity')
 
 describe('Identity', function () {
-  before(() => {
-  })
-
-  after(() => {
-  })
-
   const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'
   const publicKey = '<pubkey>'
   const idSignature = 'signature for <id>'
@@ -59,9 +53,9 @@ describe('Identity', function () {
       try {
         identity = new Identity()
       } catch (e) {
-        err = e
+        err = e.toString()
       }
-      assert.strictEqual(err.message, 'Identity id is required')
+      assert.strictEqual(err, 'Error: Identity id is required')
     })
 
     it('throws and error if publicKey was not given in constructor', async () => {
@@ -69,9 +63,9 @@ describe('Identity', function () {
       try {
         identity = new Identity('abc')
       } catch (e) {
-        err = e
+        err = e.toString()
       }
-      assert.strictEqual(err.message, 'Invalid public key')
+      assert.strictEqual(err, 'Error: Invalid public key')
     })
 
     it('throws and error if identity signature was not given in constructor', async () => {
@@ -79,9 +73,9 @@ describe('Identity', function () {
       try {
         identity = new Identity('abc', publicKey)
       } catch (e) {
-        err = e
+        err = e.toString()
       }
-      assert.strictEqual(err.message, 'Signature of the id (idSignature) is required')
+      assert.strictEqual(err, 'Error: Signature of the id (idSignature) is required')
     })
 
     it('throws and error if identity signature was not given in constructor', async () => {
@@ -89,9 +83,9 @@ describe('Identity', function () {
       try {
         identity = new Identity('abc', publicKey, idSignature)
       } catch (e) {
-        err = e
+        err = e.toString()
       }
-      assert.strictEqual(err.message, 'Signature of (publicKey + idSignature) is required')
+      assert.strictEqual(err, 'Error: Signature of (publicKey + idSignature) is required')
     })
 
     it('throws and error if identity provider was not given in constructor', async () => {
@@ -99,9 +93,9 @@ describe('Identity', function () {
       try {
         identity = new Identity('abc', publicKey, idSignature, publicKeyAndIdSignature, type)
       } catch (e) {
-        err = e
+        err = e.toString()
       }
-      assert.strictEqual(err.message, 'Identity provider is required')
+      assert.strictEqual(err, 'Error: Identity provider is required')
     })
 
     it('throws and error if identity type was not given in constructor', async () => {
@@ -109,9 +103,9 @@ describe('Identity', function () {
       try {
         identity = new Identity('abc', publicKey, idSignature, publicKeyAndIdSignature, null, provider)
       } catch (e) {
-        err = e
+        err = e.toString()
       }
-      assert.strictEqual(err.message, 'Identity type is required')
+      assert.strictEqual(err, 'Error: Identity type is required')
     })
   })
 })
