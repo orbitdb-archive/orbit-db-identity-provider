@@ -21,7 +21,7 @@
   "devDependencies": {
     "ethers": "^4.0.18",
     "mocha": "^5.2.0",
-    "orbit-db-keystore": "github:orbitdb/orbit-db-keystore#fix/static-verification",
+    "orbit-db-keystore": "github:orbitdb/orbit-db-keystore",
     "rimraf": "^2.6.2",
     "standard": "^12.0.1"
   },
