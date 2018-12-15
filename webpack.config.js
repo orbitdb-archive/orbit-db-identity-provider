@@ -29,5 +29,5 @@ module.exports = {
       path.resolve(__dirname, '../node_modules')
     ],
     moduleExtensions: ['-loader']
-  },
+  }
 }
