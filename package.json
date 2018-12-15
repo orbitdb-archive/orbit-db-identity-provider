@@ -1,11 +1,13 @@
 {
   "name": "orbit-db-identity-provider",
   "version": "0.0.3",
-  "description": "Default identity provider for OrbitDB",
+  "description": "Manage identities for OrbitDB",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "lint": "standard"
+    "lint": "standard",
+    "build": "npm run build:dist",
+    "build:dist": "webpack --config webpack.config.js --display-modules --sort-modules-by size --mode=production"
   },
   "repository": {
     "type": "git",
@@ -23,7 +25,9 @@
     "mocha": "^5.2.0",
     "orbit-db-keystore": "github:orbitdb/orbit-db-keystore",
     "rimraf": "^2.6.2",
-    "standard": "^12.0.1"
+    "standard": "^12.0.1",
+    "webpack": "^4.27.1",
+    "webpack-cli": "^3.1.2"
   },
   "standard": {
     "env": [
