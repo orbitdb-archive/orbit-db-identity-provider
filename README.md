@@ -68,7 +68,7 @@ Returns an object containing two signatures
 { id: <id-signature>, publicKey: <pub-key+id-siganture> }
 ```
 
-The first signature, `id`, is `identity.id` signed by `identiy.publicKey`. This allows owner of `id` to prove they own the private key associated with `publicKey`. The second signatue `publicKey` is created by signing the concatenation `identity.signature.id + identity.publicKey` using `identity.id`. This links the two identitifiers.
+The first signature, `id`, is `identity.id` signed by `identiy.publicKey`. This allows the owner of `id` to prove they own the private key associated with `publicKey`. The second signature `publicKey` is created by signing the concatenation `identity.signature.id + identity.publicKey` using `identity.id`. This links the two identifiers.
 
 
 ### Tests
