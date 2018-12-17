@@ -4,6 +4,14 @@
 
 `Identities` is a package to manage identities in [OrbitDB](http://github.com/orbitdb/orbit-db)
 
+## Install
+
+```sh
+$ npm i --save orbit-db-identity-provider
+```
+
+## Usage
+
 The `Identity` object contains signatures proving possession of some external identifier and an OrbitDB public key. This is included to allow proof of ownership of an external identifier within OrbitDB.
 
 ### Creating an identity
@@ -70,20 +78,35 @@ Returns an object containing two signatures
 
 The first signature, `id`, is `identity.id` signed by `identiy.publicKey`. This allows the owner of `id` to prove they own the private key associated with `publicKey`. The second signature `publicKey` is created by signing the concatenation `identity.signature.id + identity.publicKey` using `identity.id`. This links the two identifiers.
 
+## Contribute
+
+Please, feel free to contribute! Take a look at [the issues](https://github.com/orbitdb/orbit-db-identity-provider/issues), and comment on an existing issue or create a new one if you have questions, bugs, or suggestions. For larger PRs, open an issue first if you could - drive-by PRs are also welcomed.
+
+Please abide by the [Code of Conduct](CODE_OF_CONDUCT.md). For more on contributing to OrbitDB, check out the docs in [orbitdb/welcome](https://github.com/orbitdb/welcome).
 
 ### Tests
 
-Run tests with
-```
-npm test
+Run tests with:
+
+```sh
+$ npm test
 ```
 
 ### Build
 
 The build script will build the distribution file for browsers.
 
+```sh
+$ npm run build
 ```
-npm run build
+
+### Linting
+
+Please use [`standard`](https://standardjs.com). To check,
+
+
+```sh
+$ npm run lint
 ```
 
 ## License
