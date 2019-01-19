@@ -13,8 +13,19 @@
     "type": "git",
     "url": "git+https://github.com/orbitdb/orbit-db-identity-provider.git"
   },
-  "keywords": [],
+  "keywords": [
+    "orbitdb",
+    "orbit-db",
+    "identity"
+  ],
   "author": "shamb0t",
+  "contributors": [
+    "shamb0t",
+    "haadcode",
+    "RichardLitt",
+    "latenssi",
+    "adam-palazzo"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/orbitdb/orbit-db-identity-provider/issues"
