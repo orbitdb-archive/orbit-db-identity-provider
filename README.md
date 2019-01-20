@@ -1,10 +1,31 @@
 # orbit-db-identity-provider
 
+[![Gitter](https://img.shields.io/gitter/room/nwjs/nw.js.svg)](https://gitter.im/orbitdb/Lobby)  
+[![npm version](https://badge.fury.io/js/orbit-db-identity-provider.svg)](https://www.npmjs.com/package/orbit-db-identity-provider)
+
 > Default identity provider for OrbitDB
 
-`Identities` is a package to manage identities in [OrbitDB](http://github.com/orbitdb/orbit-db)
+`Identities` is a package to manage identities in [@OrbitDB](http://github.com/orbitdb/orbit-db)
+
+## Table of Contents
+
+	- [Install](#install)
+	- [Usage](#usage)
+		- [Creating an identity](#creating-an-identity)
+		- [Adding a custom identity signer and verifier](#adding-a-custom-identity-signer-and-verifier)
+		- [Properties](#properties)
+			- [id](#id)
+			- [publicKey](#publickey)
+			- [signatures](#signatures)
+	- [Contribute](#contribute)
+		- [Tests](#tests)
+		- [Build](#build)
+		- [Linting](#linting)
+	- [License](#license)
 
 ## Install
+
+This project uses [npm](https://npmjs.com/) and [nodejs](https://nodejs.org/)
 
 ```sh
 $ npm i --save orbit-db-identity-provider
@@ -82,7 +103,7 @@ The first signature, `id`, is `identity.id` signed by `identiy.publicKey`. This 
 
 Please, feel free to contribute! Take a look at [the issues](https://github.com/orbitdb/orbit-db-identity-provider/issues), and comment on an existing issue or create a new one if you have questions, bugs, or suggestions. For larger PRs, open an issue first if you could - drive-by PRs are also welcomed.
 
-Please abide by the [Code of Conduct](CODE_OF_CONDUCT.md). For more on contributing to OrbitDB, check out the docs in [orbitdb/welcome](https://github.com/orbitdb/welcome).
+Please abide by the [Code of Conduct](CODE_OF_CONDUCT.md). For more on contributing to [@OrbitDB](https://github.com/orbitdb/), check out the docs in [orbitdb/welcome](https://github.com/orbitdb/welcome).
 
 ### Tests
 
