@@ -35,7 +35,7 @@ describe('Identity Provider', function () {
         identity = await Identities.createIdentity({ id, signingKeysPath, identityKeysPath })
         keystore = identity.provider._keystore
         let key = await identityKeystore.getKey(id)
-        externalId = key.getPublic('hex')
+        externalId = key.public.marshal().toString('hex')
       })
 
       it('has the correct id', async () => {
@@ -48,15 +48,15 @@ describe('Identity Provider', function () {
       })
 
       it('has the correct public key', async () => {
-        const signingKey = keystore.getKey(externalId)
+        const signingKey = await keystore.getKey(externalId)
         assert.notStrictEqual(signingKey, undefined)
-        assert.strictEqual(identity.publicKey, signingKey.getPublic('hex'))
+        assert.strictEqual(identity.publicKey, signingKey.public.marshal().toString('hex'))
       })
 
       it('has a signature for the id', async () => {
         const signingKey = await keystore.getKey(externalId)
         const idSignature = await keystore.sign(signingKey, externalId)
-        const publicKey = signingKey.getPublic('hex')
+        const publicKey = signingKey.public.marshal().toString('hex')
         const verifies = await Keystore.verify(idSignature, publicKey, externalId)
         assert.strictEqual(verifies, true)
         assert.strictEqual(identity.signatures.id, idSignature)
@@ -75,9 +75,9 @@ describe('Identity Provider', function () {
       let savedKeysKeystore, identity
       let id = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
 
-      const expectedPublicKey = '04f5b75ff7ca624fd0bf68e7aa94f59477407bf20c769c6cd4cd10c2662b5fa34adfe5e85636c9789bc9c25146ed3eaef1ef7c40da661f68b19909c3116863beec'
-      const expectedIdSignature = '304402201b17da87ce27f4f4a5541c1af1f25bb748fac16890d2dc5c44c3011902007e9d022024292230343221b8745323d2c80fac3c52a69ef7af31dae7284bf2daab0e1a19'
-      const expectedPkIdSignature = '3044022015b33469bdd666d435c8578652d0c8ab3c92fa7cf4bc8e1e2ff383a3ea49972a022056f6b0bc3662e78f35e770cc3ae867d7ed253a2fee9a3754ff7938386221c447'
+      const expectedPublicKey = '024f8502e981273322b4e500e97f80343b9370bc36ceddfa5f13d40b0b1ff64c76'
+      const expectedIdSignature = '3045022100e51a3e11ba10bf5019a38c24f4c22e8cde0c6caa1059c9deacda30e7b8dc40bb02206ccfa7d8422ed206b72287a76285537d4bb27cc4c73ca058c944bf8eaa53b270'
+      const expectedPkIdSignature = '3045022100844a34c852240a8731f51406a780c3b9756e700530ff14136fd7f9563188f6340220592116cedc868908317323dc9a973e91c62224face22727e58c48ecea505dfb8'
 
       before(async () => {
         savedKeysKeystore = Keystore.create(savedKeysPath)
@@ -86,7 +86,7 @@ describe('Identity Provider', function () {
 
       it('has the correct id', async () => {
         let key = await savedKeysKeystore.getKey(id)
-        assert.strictEqual(identity.id, key.getPublic('hex'))
+        assert.strictEqual(identity.id, key.public.marshal().toString('hex'))
       })
 
       it('has the correct public key', async () => {
@@ -98,7 +98,8 @@ describe('Identity Provider', function () {
       })
 
       it('has the correct idSignature', async () => {
-        assert.strictEqual(expectedIdSignature, identity.signatures.id)
+
+        assert.strictEqual(identity.signatures.id, expectedIdSignature)
       })
 
       it('has a pubKeyIdSignature for the publicKey', async () => {
@@ -190,7 +191,7 @@ describe('Identity Provider', function () {
   })
 
   describe('verify data signed by an identity', () => {
-    const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'
+    const id = '03602a3da3eb35f1148e8028f141ec415ef7f6d4103443edbfec2a0711d716f53f'
     const data = 'hello friend'
     let identity
     let signature
