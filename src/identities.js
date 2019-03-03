@@ -29,8 +29,8 @@ class Identities {
     return this._keystore.sign(signingKey, data)
   }
 
-  async verify (signature, publicKey, data) {
-    return this._keystore.verify(signature, publicKey, data)
+  async verify (signature, publicKey, data, verifier = 'v1') {
+    return this._keystore.verify(signature, publicKey, data, verifier)
   }
 
   async createIdentity (options = {}) {
