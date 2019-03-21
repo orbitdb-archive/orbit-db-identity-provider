@@ -17,11 +17,12 @@ describe('Identity Provider', function () {
   before(async () => {
     rmrf.sync(signingKeysPath)
     rmrf.sync(identityKeysPath)
-    identityKeystore = Keystore.create(identityKeysPath)
+    identityKeystore = await Keystore.create(identityKeysPath)
   })
 
   after(async () => {
     // Remove stored keys
+    await identityKeystore.close()
     rmrf.sync(signingKeysPath)
     rmrf.sync(identityKeysPath)
   })
@@ -32,10 +33,14 @@ describe('Identity Provider', function () {
       let identity, externalId
 
       before(async () => {
-        identity = await Identities.createIdentity({ id, signingKeysPath, identityKeysPath })
+        identity = await Identities.createIdentity({ id, signingKeysPath, keystore: identityKeystore })
         keystore = identity.provider._keystore
         let key = await identityKeystore.getKey(id)
         externalId = key.public.marshal().toString('hex')
+      })
+
+      after(async () => {
+        await keystore.close()
       })
 
       it('has the correct id', async () => {
@@ -75,12 +80,12 @@ describe('Identity Provider', function () {
       let savedKeysKeystore, identity
       let id = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
 
-      const expectedPublicKey = '024f8502e981273322b4e500e97f80343b9370bc36ceddfa5f13d40b0b1ff64c76'
-      const expectedIdSignature = '3045022100e51a3e11ba10bf5019a38c24f4c22e8cde0c6caa1059c9deacda30e7b8dc40bb02206ccfa7d8422ed206b72287a76285537d4bb27cc4c73ca058c944bf8eaa53b270'
-      const expectedPkIdSignature = '3045022100844a34c852240a8731f51406a780c3b9756e700530ff14136fd7f9563188f6340220592116cedc868908317323dc9a973e91c62224face22727e58c48ecea505dfb8'
+      const expectedPublicKey = '030d78ff62afb656ac62db1aae3b1536a614991e28bb4d721498898b7d41943396'
+      const expectedIdSignature = '30450221009de7b91952d73f577e85962aa6301350865212e3956862f80f4ebb626ffc126b022027d57415fb145b7e06cf06320fbfa63ea98a958b065726fe86eaab809a6bf607'
+      const expectedPkIdSignature = '304402206dfa15ea512dd2a9785b99e18038da07ab6569269c217b258ca70dcc1f3637a80220729f70669dc2cd4459c42c99566b46ef98938a62b8aac0048b08e5b153bffaa8'
 
       before(async () => {
-        savedKeysKeystore = Keystore.create(savedKeysPath)
+        savedKeysKeystore = await Keystore.create(savedKeysPath)
         identity = await Identities.createIdentity({ id, keystore: savedKeysKeystore, identityKeysPath: savedKeysPath })
       })
 
@@ -98,7 +103,6 @@ describe('Identity Provider', function () {
       })
 
       it('has the correct idSignature', async () => {
-
         assert.strictEqual(identity.signatures.id, expectedIdSignature)
       })
 
@@ -122,7 +126,7 @@ describe('Identity Provider', function () {
     let identity
 
     it('identity pkSignature verifies', async () => {
-      identity = await Identities.createIdentity({ id, type })
+      identity = await Identities.createIdentity({ id, type, keystore:  identityKeystore })
       const verified = await Keystore.verify(identity.signatures.id, identity.publicKey, identity.id)
       assert.strictEqual(verified, true)
     })

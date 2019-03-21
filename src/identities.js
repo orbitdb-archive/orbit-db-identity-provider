@@ -16,8 +16,8 @@ const getHandlerFor = (type) => {
 }
 
 class Identities {
-  constructor (options = {}) {
-    this._keystore = options.keystore || Keystore.create(options.signingKeysPath || signingKeysPath)
+  constructor (keystore) {
+    this._keystore = keystore
   }
 
   async sign (identity, data) {
@@ -25,18 +25,31 @@ class Identities {
     if (!signingKey) {
       throw new Error(`Private signing key not found from Keystore`)
     }
-
-    return this._keystore.sign(signingKey, data)
+    const sig = await this._keystore.sign(signingKey, data)
+    return sig
   }
 
   async verify (signature, publicKey, data, verifier = 'v1') {
     return this._keystore.verify(signature, publicKey, data, verifier)
   }
 
+  async createFromOrbitKeys(orbitKeyId, id) {
+    // first make compressed public key from keystore
+    const IdentityProvider = getHandlerFor(options.type)
+    const identityProvider = new IdentityProvider(options)
+    const id = await identityProvider.getId(options)
+    const { publicKey, idSignature } = await this.signId(id)
+    const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
+    return new Identity(id, publicKey, idSignature, pubKeyIdSignature, IdentityProvider.type, this)
+  }
+
   async createIdentity (options = {}) {
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
     const id = await identityProvider.getId(options)
+    if (options.fromOrbitDBKeys) {
+        await this._keystore.convertOrbitDBKeys(options.fromOrbitDbKeys, id)
+    }
     const { publicKey, idSignature } = await this.signId(id)
     const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
     return new Identity(id, publicKey, idSignature, pubKeyIdSignature, IdentityProvider.type, this)
@@ -59,15 +72,29 @@ class Identities {
     return verified && Identities.verifyIdentity(identity)
   }
 
+  async fromJSON(json) {
+
+  }
+
   static async verifyIdentity (identity) {
     const IdentityProvider = getHandlerFor(identity.type)
     return IdentityProvider.verifyIdentity(identity)
   }
 
   static async createIdentity (options = {}) {
+    const keystore = options.keystore || await Keystore.create(options.signingKeysPath || signingKeysPath)
     options = Object.assign({}, { type }, options)
-    const identities = new Identities(options)
+    const identities = new Identities(keystore)
     return identities.createIdentity(options)
+  }
+
+  static async fromJSON (json, keystore) {
+    if (!keystore) {
+      keystore = await Keystore.create(signingKeysPath)
+    }
+    const identities = new Identities(keystore)
+    return new Identity(json.id, json.publicKey, json.signatures.id, json.signatures.pubKeyIdSignature,json.type, identities)
+
   }
 
   static isSupported (type) {
