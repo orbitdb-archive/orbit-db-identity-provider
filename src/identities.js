@@ -3,7 +3,7 @@ const Identity = require('./identity')
 const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
 const type = 'orbitdb'
-const signingKeysPath = './orbitdb/identity/keys'
+const identityKeysPath = './orbitdb/identity/identitykeys'
 let supportedTypes = {
   'orbitdb': OrbitDBIdentityProvider
 }
@@ -47,8 +47,9 @@ class Identities {
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
     const id = await identityProvider.getId(options)
-    if (options.fromOrbitDBKeys) {
-        await this._keystore.convertOrbitDBKeys(options.fromOrbitDbKeys, id)
+    if (options.migrate) {
+      await this._keystore.close()
+      await options.migrate(options.sourcePath, options.existingId, { targetPath: this._keystore.path, targetId: id })
     }
     const { publicKey, idSignature } = await this.signId(id)
     const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
@@ -72,29 +73,16 @@ class Identities {
     return verified && Identities.verifyIdentity(identity)
   }
 
-  async fromJSON(json) {
-
-  }
-
   static async verifyIdentity (identity) {
     const IdentityProvider = getHandlerFor(identity.type)
     return IdentityProvider.verifyIdentity(identity)
   }
 
   static async createIdentity (options = {}) {
-    const keystore = options.keystore || await Keystore.create(options.signingKeysPath || signingKeysPath)
+    const keystore = options.keystore || await Keystore.create(options.identityKeysPath || identityKeysPath)
     options = Object.assign({}, { type }, options)
     const identities = new Identities(keystore)
     return identities.createIdentity(options)
-  }
-
-  static async fromJSON (json, keystore) {
-    if (!keystore) {
-      keystore = await Keystore.create(signingKeysPath)
-    }
-    const identities = new Identities(keystore)
-    return new Identity(json.id, json.publicKey, json.signatures.id, json.signatures.pubKeyIdSignature,json.type, identities)
-
   }
 
   static isSupported (type) {

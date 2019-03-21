@@ -1,7 +1,7 @@
 'use strict'
 const IdentityProvider = require('./identity-provider-interface')
 const Keystore = require('orbit-db-keystore')
-const identityKeysPath = './orbitdb/identity/keys'
+const signingKeysPath = './orbitdb/identity/signingkeys'
 const type = 'orbitdb'
 
 class OrbitDBIdentityProvider extends IdentityProvider {
@@ -19,7 +19,7 @@ class OrbitDBIdentityProvider extends IdentityProvider {
       throw new Error('id is required')
     }
     if (!this._keystore) {
-      this._keystore = await Keystore.create(options.identityKeysPath || identityKeysPath)
+      this._keystore = await Keystore.create(options.signingKeysPath || signingKeysPath)
     }
     const keystore = this._keystore
     const key = await keystore.getKey(id) || await keystore.createKey(id)

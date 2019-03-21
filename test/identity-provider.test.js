@@ -6,11 +6,13 @@ const rmrf = require('rimraf')
 const Keystore = require('orbit-db-keystore')
 const Identities = require('../src/identities')
 const Identity = require('../src/identity')
-const savedKeysPath = path.resolve('./test/fixtures/keys')
+const fixturesPath = path.resolve('./test/fixtures/keys')
+const savedKeysPath = path.resolve('./test/fixtures/savedKeys')
 const signingKeysPath = path.resolve('./test/signingKeys')
 const identityKeysPath = path.resolve('./test/identityKeys')
-let keystore, identityKeystore
+const fs = require('fs-extra')
 
+let keystore, identityKeystore
 const type = 'orbitdb'
 
 describe('Identity Provider', function () {
@@ -85,8 +87,13 @@ describe('Identity Provider', function () {
       const expectedPkIdSignature = '304402206dfa15ea512dd2a9785b99e18038da07ab6569269c217b258ca70dcc1f3637a80220729f70669dc2cd4459c42c99566b46ef98938a62b8aac0048b08e5b153bffaa8'
 
       before(async () => {
+        await fs.copy(fixturesPath, savedKeysPath)
         savedKeysKeystore = await Keystore.create(savedKeysPath)
         identity = await Identities.createIdentity({ id, keystore: savedKeysKeystore, identityKeysPath: savedKeysPath })
+      })
+
+      after(async () => {
+        rmrf.sync(savedKeysPath)
       })
 
       it('has the correct id', async () => {
