@@ -33,23 +33,12 @@ class Identities {
     return this._keystore.verify(signature, publicKey, data, verifier)
   }
 
-  async createFromOrbitKeys(orbitKeyId, id) {
-    // first make compressed public key from keystore
-    const IdentityProvider = getHandlerFor(options.type)
-    const identityProvider = new IdentityProvider(options)
-    const id = await identityProvider.getId(options)
-    const { publicKey, idSignature } = await this.signId(id)
-    const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
-    return new Identity(id, publicKey, idSignature, pubKeyIdSignature, IdentityProvider.type, this)
-  }
-
   async createIdentity (options = {}) {
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
     const id = await identityProvider.getId(options)
     if (options.migrate) {
-      await this._keystore.close()
-      await options.migrate(options.sourcePath, options.existingId, { targetPath: this._keystore.path, targetId: id })
+      await options.migrate({ targetPath: this._keystore.path, targetId: id })
     }
     const { publicKey, idSignature } = await this.signId(id)
     const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
@@ -79,7 +68,7 @@ class Identities {
   }
 
   static async createIdentity (options = {}) {
-    const keystore = options.keystore || await Keystore.create(options.identityKeysPath || identityKeysPath)
+    const keystore = options.keystore || Keystore.create(options.identityKeysPath || identityKeysPath)
     options = Object.assign({}, { type }, options)
     const identities = new Identities(keystore)
     return identities.createIdentity(options)

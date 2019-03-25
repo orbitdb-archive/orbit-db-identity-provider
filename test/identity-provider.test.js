@@ -20,7 +20,7 @@ describe('Identity Provider', function () {
   before(async () => {
     rmrf.sync(signingKeysPath)
     rmrf.sync(identityKeysPath)
-    identityKeystore = await Keystore.create(identityKeysPath)
+    identityKeystore = Keystore.create(identityKeysPath)
   })
 
   after(async () => {
@@ -89,7 +89,7 @@ describe('Identity Provider', function () {
 
       before(async () => {
         await fs.copy(fixturesPath, savedKeysPath)
-        savedKeysKeystore = await Keystore.create(savedKeysPath)
+        savedKeysKeystore = Keystore.create(savedKeysPath)
         identity = await Identities.createIdentity({ id, keystore: savedKeysKeystore, identityKeysPath: savedKeysPath })
       })
 
@@ -225,12 +225,12 @@ describe('Identity Provider', function () {
   })
 
   describe('create identity from existing keys', () => {
-    let existingId = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
+    let source = fixturesPath + '/QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
     let publicKey = '045756c20f03ec494d07e8dd8456f67d6bd97ca175e6c4882435fe364392f131406db3a37eebe1d634b105a57b55e4f17247c1ec8ffe04d6a95d1e0ee8bed7cfbd'
     let identity
 
     before(async () => {
-      identity = await Identities.createIdentity({ id: existingId, existingId, sourcePath: fixturesPath, migrate: migrate.migrateKeys })
+      identity = await Identities.createIdentity({ id: 'A', migrate: migrate(source) })
     })
 
     it('creates identity with correct public key', async () => {
