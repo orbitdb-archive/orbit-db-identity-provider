@@ -10,6 +10,7 @@ const fixturesPath = path.resolve('./test/fixtures/keys')
 const savedKeysPath = path.resolve('./test/fixtures/savedKeys')
 const signingKeysPath = path.resolve('./test/signingKeys')
 const identityKeysPath = path.resolve('./test/identityKeys')
+const migrate = require('localstorage-level-migration')
 const fs = require('fs-extra')
 
 let keystore, identityKeystore
@@ -220,6 +221,27 @@ describe('Identity Provider', function () {
     it('doesn\'t verify invalid signature', async () => {
       const verified = await identity.provider.verify('invalid', identity.publicKey, data)
       assert.strictEqual(verified, false)
+    })
+  })
+
+  describe('create identity from existing keys', () => {
+    let existingId = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
+    let publicKey = '045756c20f03ec494d07e8dd8456f67d6bd97ca175e6c4882435fe364392f131406db3a37eebe1d634b105a57b55e4f17247c1ec8ffe04d6a95d1e0ee8bed7cfbd'
+    let identity
+
+    before(async () => {
+      identity = await Identities.createIdentity({ id: existingId, existingId, sourcePath: fixturesPath, migrate: migrate.migrateKeys })
+    })
+
+    it('creates identity with correct public key', async () => {
+      const decompressedKey = await identity.provider._keystore.decompressPublicKey(identity.publicKey)
+      assert.equal(decompressedKey, publicKey)
+    })
+
+    it('verifies signatures signed by existing key', async () => {
+      const sig = '3045022067aa0eacf268ed8a94f07a1f352f8e4e03f2168e75896aaa18709bc759cd8f41022100e9f9b281a0873efb86d52aef647d8dedc6e3e4e383c8a82258a9e1da78bf2057'
+      const ver = await identity.provider.verify(sig, identity.publicKey, 'signme', 'v0')
+      assert.equal(ver, true)
     })
   })
 })
