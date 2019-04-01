@@ -3,7 +3,7 @@ const Identity = require('./identity')
 const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
 const type = 'orbitdb'
-const signingKeysPath = './orbitdb/identity/keys'
+const identityKeysPath = './orbitdb/identity/identitykeys'
 let supportedTypes = {
   'orbitdb': OrbitDBIdentityProvider
 }
@@ -16,8 +16,8 @@ const getHandlerFor = (type) => {
 }
 
 class Identities {
-  constructor (options = {}) {
-    this._keystore = options.keystore || Keystore.create(options.signingKeysPath || signingKeysPath)
+  constructor (keystore) {
+    this._keystore = keystore
   }
 
   async sign (identity, data) {
@@ -25,18 +25,21 @@ class Identities {
     if (!signingKey) {
       throw new Error(`Private signing key not found from Keystore`)
     }
-
-    return this._keystore.sign(signingKey, data)
+    const sig = await this._keystore.sign(signingKey, data)
+    return sig
   }
 
-  async verify (signature, publicKey, data) {
-    return this._keystore.verify(signature, publicKey, data)
+  async verify (signature, publicKey, data, verifier = 'v1') {
+    return this._keystore.verify(signature, publicKey, data, verifier)
   }
 
   async createIdentity (options = {}) {
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
     const id = await identityProvider.getId(options)
+    if (options.migrate) {
+      await options.migrate({ targetPath: this._keystore.path, targetId: id })
+    }
     const { publicKey, idSignature } = await this.signId(id)
     const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
     return new Identity(id, publicKey, idSignature, pubKeyIdSignature, IdentityProvider.type, this)
@@ -45,7 +48,7 @@ class Identities {
   async signId (id) {
     const keystore = this._keystore
     const key = await keystore.getKey(id) || await keystore.createKey(id)
-    const publicKey = await key.getPublic('hex')
+    const publicKey = await key.public.marshal().toString('hex')
     const idSignature = await keystore.sign(key, id)
     return { publicKey, idSignature }
   }
@@ -65,8 +68,9 @@ class Identities {
   }
 
   static async createIdentity (options = {}) {
+    const keystore = options.keystore || Keystore.create(options.identityKeysPath || identityKeysPath)
     options = Object.assign({}, { type }, options)
-    const identities = new Identities(options)
+    const identities = new Identities(keystore)
     return identities.createIdentity(options)
   }
 

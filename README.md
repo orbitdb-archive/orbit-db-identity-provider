@@ -9,19 +9,19 @@
 
 ## Table of Contents
 
-	- [Install](#install)
-	- [Usage](#usage)
-		- [Creating an identity](#creating-an-identity)
-		- [Adding a custom identity signer and verifier](#adding-a-custom-identity-signer-and-verifier)
-		- [Properties](#properties)
-			- [id](#id)
-			- [publicKey](#publickey)
-			- [signatures](#signatures)
-	- [Contribute](#contribute)
-		- [Tests](#tests)
-		- [Build](#build)
-		- [Linting](#linting)
-	- [License](#license)
+  - [Install](#install)
+  - [Usage](#usage)
+    - [Creating an identity](#creating-an-identity)
+    - [Adding a custom identity signer and verifier](#adding-a-custom-identity-signer-and-verifier)
+    - [Properties](#properties)
+      - [id](#id)
+      - [publicKey](#publickey)
+      - [signatures](#signatures)
+  - [Contribute](#contribute)
+    - [Tests](#tests)
+    - [Build](#build)
+    - [Linting](#linting)
+  - [License](#license)
 
 ## Install
 
@@ -59,6 +59,30 @@ If `options.type` is not specified, Identities will default to creating an ident
 To use an existing keystore, you can pass it as an argument in the options as follows:
 ```js
 const identity = await Identities.createIdentity({ id: 'local-id', keystore: existingKeystore })
+```
+
+### Create identity using existing keys
+
+To create an identity using existing keys, you need to install `localstorage-level-migration`
+
+```js
+const Identities = require('orbit-db-identity-provider')
+const migrate = require('localstorage-level-migration')
+const options = { id: 'new-id', migrate: migrate('/path/to/keys') }
+const identity = await Identities.createIdentity(options)
+
+console.log(identity.toJSON())
+// prints
+{
+  id: '<new-id>',
+  publicKey: '<compressed-original-key>',
+  signatures:  {
+    id: '<new-id-signed-by-public-key>',
+    publicKey: '<public-key-signed-by-id>'
+  },
+  type: 'orbitdb'
+}
+
 ```
 
 ### Adding a custom identity signer and verifier

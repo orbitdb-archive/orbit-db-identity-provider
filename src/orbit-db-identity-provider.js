@@ -1,13 +1,13 @@
 'use strict'
 const IdentityProvider = require('./identity-provider-interface')
 const Keystore = require('orbit-db-keystore')
-const identityKeysPath = './orbitdb/identity/keys'
+const signingKeysPath = './orbitdb/identity/signingkeys'
 const type = 'orbitdb'
 
 class OrbitDBIdentityProvider extends IdentityProvider {
   constructor (options = {}) {
     super()
-    this._keystore = options.keystore || Keystore.create(options.identityKeysPath || identityKeysPath)
+    this._keystore = options.keystore || Keystore.create(options.signingKeysPath || signingKeysPath)
   }
 
   // Returns the type of the identity provider
@@ -21,7 +21,7 @@ class OrbitDBIdentityProvider extends IdentityProvider {
 
     const keystore = this._keystore
     const key = await keystore.getKey(id) || await keystore.createKey(id)
-    return key.getPublic('hex')
+    return key.public.marshal().toString('hex')
   }
 
   async signIdentity (data, options = {}) {
@@ -34,6 +34,7 @@ class OrbitDBIdentityProvider extends IdentityProvider {
     if (!key) {
       throw new Error(`Signing key for '${id}' not found`)
     }
+
     return keystore.sign(key, data)
   }
 

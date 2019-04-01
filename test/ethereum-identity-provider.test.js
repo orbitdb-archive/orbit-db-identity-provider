@@ -19,6 +19,7 @@ describe('Ethereum Identity Provider', function () {
   })
 
   after(async () => {
+    await keystore.close()
     rmrf.sync(keypath)
   })
 
@@ -44,13 +45,13 @@ describe('Ethereum Identity Provider', function () {
     it('has the correct public key', async () => {
       const signingKey = await keystore.getKey(wallet.address)
       assert.notStrictEqual(signingKey, undefined)
-      assert.strictEqual(identity.publicKey, signingKey.getPublic('hex'))
+      assert.strictEqual(identity.publicKey, signingKey.public.marshal().toString('hex'))
     })
 
     it('has a signature for the id', async () => {
       const signingKey = await keystore.getKey(wallet.address)
       const idSignature = await keystore.sign(signingKey, wallet.address)
-      const verifies = await Keystore.verify(idSignature, signingKey.getPublic('hex'), wallet.address)
+      const verifies = await Keystore.verify(idSignature, signingKey.public.marshal().toString('hex'), wallet.address)
       assert.strictEqual(verifies, true)
       assert.strictEqual(identity.signatures.id, idSignature)
     })
