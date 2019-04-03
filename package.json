@@ -47,6 +47,6 @@
   },
   "dependencies": {
     "ethers": "^4.0.20",
-    "orbit-db-keystore": "rc1"
+    "orbit-db-keystore": "github:orbitdb/orbit-db-keystore#decompress"
   }
 }
