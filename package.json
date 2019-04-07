@@ -1,6 +1,6 @@
 {
   "name": "orbit-db-identity-provider",
-  "version": "0.1.0-rc.1",
+  "version": "0.1.0-rc.1.2",
   "description": "Default identity provider for OrbitDB",
   "main": "index.js",
   "scripts": {
@@ -47,6 +47,6 @@
   },
   "dependencies": {
     "ethers": "^4.0.20",
-    "orbit-db-keystore": "rc1"
+    "orbit-db-keystore": "rc1.2"
   }
 }

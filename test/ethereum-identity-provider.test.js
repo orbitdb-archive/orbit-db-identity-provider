@@ -45,7 +45,7 @@ describe('Ethereum Identity Provider', function () {
     it('has the correct public key', async () => {
       const signingKey = await keystore.getKey(wallet.address)
       assert.notStrictEqual(signingKey, undefined)
-      assert.strictEqual(identity.publicKey, signingKey.public.marshal().toString('hex'))
+      assert.strictEqual(identity.publicKey, keystore.getPublic(signingKey))
     })
 
     it('has a signature for the id', async () => {
