@@ -47,6 +47,6 @@
   },
   "dependencies": {
     "ethers": "^4.0.20",
-    "orbit-db-keystore": "~0.2.0"
+    "orbit-db-keystore": "orbitdb/orbit-db-keystore#fix/persistent-leveldb-connection"
   }
 }

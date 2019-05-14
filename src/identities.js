@@ -37,6 +37,9 @@ class Identities {
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
     const id = await identityProvider.getId(options)
+
+    await this._keystore.open()
+
     if (options.migrate) {
       await options.migrate({ targetPath: this._keystore.path, targetId: id })
     }
