@@ -12,6 +12,7 @@ module.exports = {
   target: 'web',
   devtool: 'sourcemap',
   node: {
+    fs: 'empty',
     console: false,
     Buffer: true
   },
