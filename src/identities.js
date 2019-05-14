@@ -38,8 +38,6 @@ class Identities {
     const identityProvider = new IdentityProvider(options)
     const id = await identityProvider.getId(options)
 
-    await this._keystore.open()
-
     if (options.migrate) {
       await options.migrate({ targetStore: this._keystore._store, targetId: id })
     }
