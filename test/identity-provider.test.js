@@ -133,6 +133,10 @@ describe('Identity Provider', function () {
     const id = 'QmFoo'
     let identity
 
+    before(async () => {
+      await identityKeystore.open()
+    })
+
     it('identity pkSignature verifies', async () => {
       identity = await Identities.createIdentity({ id, type, keystore:  identityKeystore })
       const verified = await Keystore.verify(identity.signatures.id, identity.publicKey, identity.id)
