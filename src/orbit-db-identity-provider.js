@@ -35,7 +35,9 @@ class OrbitDBIdentityProvider extends IdentityProvider {
       throw new Error(`Signing key for '${id}' not found`)
     }
     const sig = await keystore.sign(key, data)
-    await this._keystore.close()
+    if (this._keystore.close) {
+      await this._keystore.close()
+    }
 
     return sig
   }
