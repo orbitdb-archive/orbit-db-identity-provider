@@ -51,6 +51,7 @@ class Identities {
     const key = await keystore.getKey(id) || await keystore.createKey(id)
     const publicKey = keystore.getPublic(key)
     const idSignature = await keystore.sign(key, id)
+    await this._keystore.close()
     return { publicKey, idSignature }
   }
 
