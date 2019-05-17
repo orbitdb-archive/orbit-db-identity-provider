@@ -48,7 +48,7 @@ class Identities {
   async signId (id) {
     const keystore = this._keystore
     const key = await keystore.getKey(id) || await keystore.createKey(id)
-    const publicKey = await key.public.marshal().toString('hex')
+    const publicKey = keystore.getPublic(key)
     const idSignature = await keystore.sign(key, id)
     return { publicKey, idSignature }
   }
