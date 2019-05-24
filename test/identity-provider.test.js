@@ -13,19 +13,27 @@ const identityKeysPath = path.resolve('./test/identityKeys')
 const migrate = require('localstorage-level-migration')
 const fs = require('fs-extra')
 
-let keystore, identityKeystore
+const leveldown = require('leveldown')
+const storage = require('orbit-db-storage-adapter')(leveldown)
+
+let keystore, identityStore, signingStore, identityKeystore, signingKeystore
 const type = 'orbitdb'
 
 describe('Identity Provider', function () {
   before(async () => {
     rmrf.sync(signingKeysPath)
     rmrf.sync(identityKeysPath)
-    identityKeystore = Keystore.create(identityKeysPath)
+
+    identityStore = await storage.createStore(identityKeysPath)
+    signingStore = await storage.createStore(signingKeysPath)
+    identityKeystore = signingKeystore = new Keystore(identityStore)
+    signingKeystore = new Keystore(signingStore)
   })
 
   after(async () => {
     // Remove stored keys
-    await identityKeystore.close()
+    await identityStore.close()
+    // await signingStore.close()
     rmrf.sync(signingKeysPath)
     rmrf.sync(identityKeysPath)
   })
@@ -36,7 +44,7 @@ describe('Identity Provider', function () {
       let identity, externalId
 
       before(async () => {
-        identity = await Identities.createIdentity({ id, signingKeysPath, keystore: identityKeystore })
+        identity = await Identities.createIdentity({ id, signingKeystore: identityKeystore, identityKeystore })
         keystore = identity.provider._keystore
         let key = await identityKeystore.getKey(id)
         externalId = key.public.marshal().toString('hex')
@@ -80,7 +88,7 @@ describe('Identity Provider', function () {
     })
 
     describe('create an identity with saved keys', () => {
-      let savedKeysKeystore, identity
+      let savedKeysStore, savedKeysKeystore, identity
       let id = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
 
       const expectedPublicKey = '040d78ff62afb656ac62db1aae3b1536a614991e28bb4d721498898b7d4194339640cd18c37b259e2c77738de0d6f9a5d52e0b936611de6b6ba78891a8b2a38317'
@@ -89,8 +97,9 @@ describe('Identity Provider', function () {
 
       before(async () => {
         await fs.copy(fixturesPath, savedKeysPath)
-        savedKeysKeystore = Keystore.create(savedKeysPath)
-        identity = await Identities.createIdentity({ id, keystore: savedKeysKeystore, identityKeysPath: savedKeysPath })
+        const savedKeysStore = await storage.createStore(savedKeysPath)
+        savedKeysKeystore = new Keystore(savedKeysStore)
+        identity = await Identities.createIdentity({ id, signingKeystore: savedKeysKeystore, identityKeystore: savedKeysKeystore })
       })
 
       after(async () => {
@@ -133,18 +142,14 @@ describe('Identity Provider', function () {
     const id = 'QmFoo'
     let identity
 
-    before(async () => {
-      await identityKeystore.open()
-    })
-
     it('identity pkSignature verifies', async () => {
-      identity = await Identities.createIdentity({ id, type, keystore:  identityKeystore })
+      identity = await Identities.createIdentity({ id, type, identityKeystore, signingKeystore })
       const verified = await Keystore.verify(identity.signatures.id, identity.publicKey, identity.id)
       assert.strictEqual(verified, true)
     })
 
     it('identity signature verifies', async () => {
-      identity = await Identities.createIdentity({ id, type, keystore })
+      identity = await Identities.createIdentity({ id, type, identityKeystore, signingKeystore })
       const verified = await Keystore.verify(identity.signatures.publicKey, identity.id, identity.publicKey + identity.signatures.id)
       assert.strictEqual(verified, true)
     })
@@ -158,7 +163,7 @@ describe('Identity Provider', function () {
       }
 
       Identities.addIdentityProvider(IP)
-      identity = await Identities.createIdentity({ type: IP.type, keystore })
+      identity = await Identities.createIdentity({ type: IP.type, identityKeystore, signingKeystore })
       const verified = await Identities.verifyIdentity(identity)
       assert.strictEqual(verified, false)
     })
@@ -169,7 +174,7 @@ describe('Identity Provider', function () {
     let identity
 
     it('identity verifies', async () => {
-      identity = await Identities.createIdentity({ id, type, keystore })
+      identity = await Identities.createIdentity({ id, type, identityKeystore, signingKeystore })
       const verified = await identity.provider.verifyIdentity(identity)
       assert.strictEqual(verified, true)
     })
@@ -181,7 +186,7 @@ describe('Identity Provider', function () {
     let identity
 
     before(async () => {
-      identity = await Identities.createIdentity({ id, keystore })
+      identity = await Identities.createIdentity({ id, identityKeystore, signingKeystore })
     })
 
     it('sign data', async () => {
@@ -213,7 +218,7 @@ describe('Identity Provider', function () {
     let signature
 
     beforeEach(async () => {
-      identity = await Identities.createIdentity({ id, type, keystore })
+      identity = await Identities.createIdentity({ id, type, identityKeystore, signingKeystore })
       signature = await identity.provider.sign(identity, data, keystore)
     })
 
@@ -234,7 +239,7 @@ describe('Identity Provider', function () {
     let identity
 
     before(async () => {
-      identity = await Identities.createIdentity({ id: 'A', migrate: migrate(source) })
+      identity = await Identities.createIdentity({ id: 'A', migrate: migrate(source), identityKeystore, signingKeystore })
     })
 
     it('creates identity with correct public key', async () => {
