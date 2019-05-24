@@ -8,14 +8,18 @@ const Identities = require('../src/identities')
 const EthIdentityProvider = require('../src/ethereum-identity-provider')
 const Identity = require('../src/identity')
 const keypath = path.resolve('./test/keys')
-let keystore
+const leveldown = require('leveldown')
+const storage = require('orbit-db-storage-adapter')(leveldown)
+
+let keystore, store
 
 const type = EthIdentityProvider.type
 describe('Ethereum Identity Provider', function () {
   before(async () => {
     rmrf.sync(keypath)
     Identities.addIdentityProvider(EthIdentityProvider)
-    keystore = Keystore.create(keypath)
+    store = await storage.createStore(keypath)
+    keystore = new Keystore(store)
   })
 
   after(async () => {
@@ -30,7 +34,7 @@ describe('Ethereum Identity Provider', function () {
     before(async () => {
       const ethIdentityProvider = new EthIdentityProvider()
       wallet = await ethIdentityProvider._createWallet()
-      identity = await Identities.createIdentity({ type, keystore, wallet })
+      identity = await Identities.createIdentity({ type, identityKeystore: keystore, signingKeystore: keystore, wallet })
     })
 
     it('has the correct id', async () => {
@@ -68,7 +72,7 @@ describe('Ethereum Identity Provider', function () {
     let identity
 
     before(async () => {
-      identity = await Identities.createIdentity({ keystore, type })
+      identity = await Identities.createIdentity({ identityKeystore: keystore, signingKeystore: keystore, type })
     })
 
     it('ethereum identity verifies', async () => {
@@ -88,7 +92,7 @@ describe('Ethereum Identity Provider', function () {
     const data = 'hello friend'
 
     before(async () => {
-      identity = await Identities.createIdentity({ keystore, type })
+      identity = await Identities.createIdentity({ identityKeystore: keystore, signingKeystore: keystore, type })
     })
 
     it('sign data', async () => {
@@ -118,7 +122,7 @@ describe('Ethereum Identity Provider', function () {
       let signature
 
       before(async () => {
-        identity = await Identities.createIdentity({ type, keystore })
+        identity = await Identities.createIdentity({ type, identityKeystore: keystore, signingKeystore: keystore })
         signature = await identity.provider.sign(identity, data, keystore)
       })
 
