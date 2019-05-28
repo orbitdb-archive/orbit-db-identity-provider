@@ -69,13 +69,13 @@ class Identities {
   }
 
   static async createIdentity (options = {}) {
-    if(!options.identityKeystore) {
-      throw new Error("IdentityProvider.createIdentity requires options.identityKeystore")
+    if(!options.keystore) {
+      throw new Error("IdentityProvider.createIdentity requires options.keystore")
     }
     if(!options.signingKeystore) {
-      throw new Error("IdentityProvider.createIdentity requires options.signingKeystore")
+      options.signingKeystore = options.keystore
     }
-    const keystore = options.identityKeystore
+    const keystore = options.keystore
     options = Object.assign({}, { type }, options)
     const identities = new Identities(keystore)
     return identities.createIdentity(options)

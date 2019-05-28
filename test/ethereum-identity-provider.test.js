@@ -34,7 +34,7 @@ describe('Ethereum Identity Provider', function () {
     before(async () => {
       const ethIdentityProvider = new EthIdentityProvider()
       wallet = await ethIdentityProvider._createWallet()
-      identity = await Identities.createIdentity({ type, identityKeystore: keystore, signingKeystore: keystore, wallet })
+      identity = await Identities.createIdentity({ type, keystore, wallet })
     })
 
     it('has the correct id', async () => {
@@ -72,7 +72,7 @@ describe('Ethereum Identity Provider', function () {
     let identity
 
     before(async () => {
-      identity = await Identities.createIdentity({ identityKeystore: keystore, signingKeystore: keystore, type })
+      identity = await Identities.createIdentity({ keystore, type })
     })
 
     it('ethereum identity verifies', async () => {
@@ -92,7 +92,7 @@ describe('Ethereum Identity Provider', function () {
     const data = 'hello friend'
 
     before(async () => {
-      identity = await Identities.createIdentity({ identityKeystore: keystore, signingKeystore: keystore, type })
+      identity = await Identities.createIdentity({ keystore, type })
     })
 
     it('sign data', async () => {
@@ -122,7 +122,7 @@ describe('Ethereum Identity Provider', function () {
       let signature
 
       before(async () => {
-        identity = await Identities.createIdentity({ type, identityKeystore: keystore, signingKeystore: keystore })
+        identity = await Identities.createIdentity({ type, keystore })
         signature = await identity.provider.sign(identity, data, keystore)
       })
 
