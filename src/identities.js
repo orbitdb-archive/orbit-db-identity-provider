@@ -39,7 +39,7 @@ class Identities {
     const id = await identityProvider.getId(options)
 
     if (options.migrate) {
-      await options.migrate({ targetStore: this._keystore._store, targetId: id })
+      await options.migrate({ targetStore: this._keystore, targetId: id })
     }
     const { publicKey, idSignature } = await this.signId(id)
     const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
