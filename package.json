@@ -7,7 +7,8 @@
     "test": "mocha",
     "lint": "standard",
     "build": "npm run build:dist",
-    "build:dist": "webpack --config webpack.config.js --display-modules --sort-modules-by size --mode=production"
+    "build:dist": "webpack --config ./conf/webpack.config.js --display-modules --sort-modules-by size --mode=production",
+    "build:metamask": "webpack --config ./conf/webpack.metamask.config.js --display-modules --sort-modules-by size --mode=production"
   },
   "repository": {
     "type": "git",
@@ -47,7 +48,8 @@
   },
   "dependencies": {
     "ethers": "^4.0.20",
-    "orbit-db-keystore": "~0.2.0"
+    "@colony/purser-metamask": "^2.2.0",
+    "orbit-db-keystore": "~0.2.1"
   },
   "localMaintainers": [
     "haad <haad@haja.io>",
