@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <script type="text/javascript" src="../dist/metamask-ip.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="../dist/index-browser.min.js" charset="utf-8"></script>
+    <script type="text/javascript">
+      async function connectMetamask() {
+        if (window.ethereum) {
+          window.web3 = new Web3(ethereum)
+          try {
+            await ethereum.enable()
+
+            Identities.addIdentityProvider(MetamaskIdentityProvider)   // add metamask-identity-provider
+            const identity = await Identities.createIdentity({ type: MetamaskIdentityProvider.type })   // create identity
+
+            console.log("OrbitDB identity", identity.toJSON())
+            const verified = await Identities.verifyIdentity(identity) //verify identity
+            console.log("Identity verified:", verified)
+
+            // const db = await OrbitDB.createInstance({ identity })
+          } catch (error) {
+            console.error('denied!', error)
+          }
+        } else {
+          console.log('Non-Ethereum browser detected. You should consider trying MetaMask!')
+        }
+      }
+    </script>
+    <button type="button" onclick="connectMetamask()">Create Metamask Identity</button>
+  </body>
+</html>
