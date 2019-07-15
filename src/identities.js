@@ -4,8 +4,8 @@ const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
 const type = 'orbitdb'
 const identityKeysPath = './orbitdb/identity/identitykeys'
-let supportedTypes = {
-  'orbitdb': OrbitDBIdentityProvider
+const supportedTypes = {
+  orbitdb: OrbitDBIdentityProvider
 }
 
 const getHandlerFor = (type) => {
