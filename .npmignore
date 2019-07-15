@@ -2,3 +2,4 @@ test
 webpack.config.js
 .circleci
 orbitdb
+index-browser.min.js
