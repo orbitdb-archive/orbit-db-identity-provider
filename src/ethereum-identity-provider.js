@@ -8,6 +8,7 @@ class EthIdentityProvider extends IdentityProvider {
     super()
     this.wallet = options.wallet
   }
+
   // Returns the type of the identity provider
   static get type () { return type }
 

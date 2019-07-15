@@ -77,7 +77,7 @@ describe('Ethereum Identity Provider', function () {
     })
 
     it('ethereum identity with incorrect id does not verify', async () => {
-      let identity2 = new Identity('NotAnId', identity.publicKey, identity.signatures.id, identity.signatures.publicKey, identity.type, identity.provider)
+      const identity2 = new Identity('NotAnId', identity.publicKey, identity.signatures.id, identity.signatures.publicKey, identity.type, identity.provider)
       const verified = await Identities.verifyIdentity(identity2)
       assert.strictEqual(verified, false)
     })

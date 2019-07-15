@@ -32,13 +32,13 @@ describe('Identity Provider', function () {
 
   describe('create an identity', () => {
     describe('create a new identity', () => {
-      let id = 'A'
+      const id = 'A'
       let identity, externalId
 
       before(async () => {
         identity = await Identities.createIdentity({ id, signingKeysPath, keystore: identityKeystore })
         keystore = identity.provider._keystore
-        let key = await identityKeystore.getKey(id)
+        const key = await identityKeystore.getKey(id)
         externalId = key.public.marshal().toString('hex')
       })
 
@@ -81,7 +81,7 @@ describe('Identity Provider', function () {
 
     describe('create an identity with saved keys', () => {
       let savedKeysKeystore, identity
-      let id = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
+      const id = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
 
       const expectedPublicKey = '040d78ff62afb656ac62db1aae3b1536a614991e28bb4d721498898b7d4194339640cd18c37b259e2c77738de0d6f9a5d52e0b936611de6b6ba78891a8b2a38317'
       const expectedIdSignature = '30450221009de7b91952d73f577e85962aa6301350865212e3956862f80f4ebb626ffc126b022027d57415fb145b7e06cf06320fbfa63ea98a958b065726fe86eaab809a6bf607'
@@ -98,7 +98,7 @@ describe('Identity Provider', function () {
       })
 
       it('has the correct id', async () => {
-        let key = await savedKeysKeystore.getKey(id)
+        const key = await savedKeysKeystore.getKey(id)
         assert.strictEqual(identity.id, key.public.marshal().toString('hex'))
       })
 
@@ -134,7 +134,7 @@ describe('Identity Provider', function () {
     let identity
 
     it('identity pkSignature verifies', async () => {
-      identity = await Identities.createIdentity({ id, type, keystore:  identityKeystore })
+      identity = await Identities.createIdentity({ id, type, keystore: identityKeystore })
       const verified = await Keystore.verify(identity.signatures.id, identity.publicKey, identity.id)
       assert.strictEqual(verified, true)
     })
@@ -148,8 +148,11 @@ describe('Identity Provider', function () {
     it('false signature doesn\'t verify', async () => {
       class IP {
         async getId () { return 'pubKey' }
+
         async signIdentity (data) { return `false signature '${data}'` }
+
         static async verifyIdentity (data) { return false }
+
         static get type () { return 'fake' }
       }
 
@@ -225,8 +228,8 @@ describe('Identity Provider', function () {
   })
 
   describe('create identity from existing keys', () => {
-    let source = fixturesPath + '/QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
-    let publicKey = '045756c20f03ec494d07e8dd8456f67d6bd97ca175e6c4882435fe364392f131406db3a37eebe1d634b105a57b55e4f17247c1ec8ffe04d6a95d1e0ee8bed7cfbd'
+    const source = fixturesPath + '/QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
+    const publicKey = '045756c20f03ec494d07e8dd8456f67d6bd97ca175e6c4882435fe364392f131406db3a37eebe1d634b105a57b55e4f17247c1ec8ffe04d6a95d1e0ee8bed7cfbd'
     let identity
 
     before(async () => {
@@ -234,13 +237,13 @@ describe('Identity Provider', function () {
     })
 
     it('creates identity with correct public key', async () => {
-      assert.equal(identity.publicKey, publicKey)
+      assert.strictEqual(identity.publicKey, publicKey)
     })
 
     it('verifies signatures signed by existing key', async () => {
       const sig = '3045022067aa0eacf268ed8a94f07a1f352f8e4e03f2168e75896aaa18709bc759cd8f41022100e9f9b281a0873efb86d52aef647d8dedc6e3e4e383c8a82258a9e1da78bf2057'
       const ver = await identity.provider.verify(sig, identity.publicKey, 'signme', 'v0')
-      assert.equal(ver, true)
+      assert.strictEqual(ver, true)
     })
   })
 })
