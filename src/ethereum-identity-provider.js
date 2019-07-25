@@ -17,7 +17,7 @@ class EthIdentityProvider extends IdentityProvider {
     if (!this.wallet) {
       this.wallet = await this._createWallet(options)
     }
-    return this.wallet.address
+    return this.wallet.getAddress()
   }
 
   // Returns a signature of pubkeysignature
