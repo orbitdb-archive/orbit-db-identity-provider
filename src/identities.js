@@ -69,10 +69,10 @@ class Identities {
   }
 
   static async createIdentity (options = {}) {
-    if(!options.keystore) {
-      options.keystore =  new Keystore(options.keypath || keypath)
+    if (!options.keystore) {
+      options.keystore = new Keystore(options.keypath || keypath)
     }
-    if(!options.signingKeystore) options.signingKeystore = options.keystore
+    if (!options.signingKeystore) options.signingKeystore = options.keystore
     options = Object.assign({}, { type }, options)
     const identities = new Identities(options.keystore)
     return identities.createIdentity(options)
