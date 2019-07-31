@@ -4,10 +4,13 @@
   "description": "Default identity provider for OrbitDB",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "npm run test:node && npm run test:browser",
+    "test:node": "TEST=all mocha",
+    "test:browser": "npm run build:tests && mocha-headless-chrome -f ./test/browser/index.html -a no-sandbox",
     "lint": "standard",
     "build": "npm run build:dist",
-    "build:dist": "webpack --config webpack.config.js --display-modules --sort-modules-by size --mode=production"
+    "build:dist": "webpack --config webpack.config.js --display-modules --sort-modules-by size --mode=production",
+    "build:tests": "webpack --config ./conf/webpack.tests.config.js --mode production"
   },
   "repository": {
     "type": "git",
@@ -32,10 +35,17 @@
   },
   "homepage": "https://github.com/orbitdb/orbit-db-identity-provider#readme",
   "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/plugin-syntax-object-rest-spread": "^7.2.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.5.0",
+    "@babel/plugin-transform-runtime": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/runtime": "^7.5.5",
     "fs-extra": "^7.0.1",
     "leveldown": "^5.1.0",
-    "localstorage-level-migration": "github:orbitdb/localstorage-level-migration#fix/persistent-store",
+    "localstorage-level-migration": "github:orbitdb/localstorage-level-migration#master",
     "mocha": "^5.2.0",
+    "mocha-headless-chrome": "^2.0.3",
     "orbit-db-storage-adapter": "^0.4.1",
     "orbit-db-test-utils": "^0.4.0",
     "rimraf": "^2.6.2",
