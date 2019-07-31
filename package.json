@@ -1,6 +1,6 @@
 {
   "name": "orbit-db-identity-provider",
-  "version": "0.1.6",
+  "version": "0.1.5",
   "description": "Default identity provider for OrbitDB",
   "main": "index.js",
   "scripts": {
@@ -33,12 +33,15 @@
   "homepage": "https://github.com/orbitdb/orbit-db-identity-provider#readme",
   "devDependencies": {
     "fs-extra": "^7.0.1",
+    "leveldown": "^5.1.0",
+    "localstorage-level-migration": "github:orbitdb/localstorage-level-migration#fix/persistent-store",
     "mocha": "^5.2.0",
+    "orbit-db-storage-adapter": "^0.4.1",
+    "orbit-db-test-utils": "^0.4.0",
     "rimraf": "^2.6.2",
     "standard": "^13.0.2",
     "webpack": "^4.27.1",
-    "webpack-cli": "^3.1.2",
-    "localstorage-level-migration": "^0.0.1"
+    "webpack-cli": "^3.1.2"
   },
   "standard": {
     "env": [
@@ -47,7 +50,7 @@
   },
   "dependencies": {
     "ethers": "^4.0.20",
-    "orbit-db-keystore": "~0.2.0"
+    "orbit-db-keystore": "orbitdb/orbit-db-keystore#fix/duck-typed-constructor"
   },
   "localMaintainers": [
     "haad <haad@haja.io>",

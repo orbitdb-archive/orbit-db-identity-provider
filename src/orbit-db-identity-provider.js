@@ -7,7 +7,13 @@ const type = 'orbitdb'
 class OrbitDBIdentityProvider extends IdentityProvider {
   constructor (options = {}) {
     super()
-    this._keystore = options.keystore || Keystore.create(options.signingKeysPath || signingKeysPath)
+    if(!options.keystore) {
+      throw new Error("IdentityProvider.createIdentity requires options.keystore")
+    }
+    if(!options.signingKeystore) {
+      options.signingKeystore = options.keystore
+    }
+    this._keystore = options.signingKeystore
   }
 
   // Returns the type of the identity provider
