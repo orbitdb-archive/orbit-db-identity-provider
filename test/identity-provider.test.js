@@ -13,8 +13,10 @@ const identityKeysPath = path.resolve('./test/identityKeys')
 const migrate = require('localstorage-level-migration')
 const fs = require('fs-extra')
 
-const leveldown = require('leveldown')
-const storage = require('orbit-db-storage-adapter')(leveldown)
+const implementations = require('orbit-db-test-utils/implementations')
+
+const properLevelModule = implementations.filter(i => i.key.indexOf('level') > -1).map(i => i.module)[0]
+const storage = require('orbit-db-storage-adapter')(properLevelModule)
 
 let keystore, identityStore, signingStore, signingKeystore
 const type = 'orbitdb'

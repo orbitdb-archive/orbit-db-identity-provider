@@ -11,7 +11,6 @@ module.exports = {
     filename: '../test/browser/bundle.js'
   },
   target: 'web',
-  mode: 'production',
   devtool: 'source-map',
   node: {
     child_process: 'empty'

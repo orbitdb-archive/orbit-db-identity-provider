@@ -42,7 +42,6 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/runtime": "^7.5.5",
     "fs-extra": "^7.0.1",
-    "leveldown": "^5.1.0",
     "localstorage-level-migration": "github:orbitdb/localstorage-level-migration#master",
     "mocha": "^5.2.0",
     "mocha-headless-chrome": "^2.0.3",
@@ -60,7 +59,7 @@
   },
   "dependencies": {
     "ethers": "^4.0.20",
-    "orbit-db-keystore": "orbitdb/orbit-db-keystore#fix/duck-typed-constructor"
+    "orbit-db-keystore": "orbitdb/orbit-db-keystore#browser-example-scaffolding"
   },
   "localMaintainers": [
     "haad <haad@haja.io>",
