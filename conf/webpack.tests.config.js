@@ -6,7 +6,7 @@ const path = require('path')
 
 module.exports = {
   // TODO: put all tests in a .js file that webpack can use as entry point
-  entry: glob.sync('./test/*.test.js'),
+  entry: glob.sync('./test/*.spec.js'),
   output: {
     filename: '../test/browser/bundle.js'
   },
@@ -24,16 +24,15 @@ module.exports = {
     new webpack.IgnorePlugin(/mongo|redis/)
   ],
   externals: {
+    bindings: '{}',
+    leveldown: '{}',
     fs: '{}',
     fatfs: '{}',
     runtimejs: '{}',
-    // net: '{}',
-    // tls: '{}',
     rimraf: '{ sync: () => {} }',
     'graceful-fs': '{}',
     'fs-extra': '{ copy: () => {} }',
     'fs.realpath': '{}'
-    // 'child_process': {},
     // dns: '{}',
     // "node-gyp-build": '{}'
   },
@@ -66,7 +65,7 @@ module.exports = {
         }
       },
       {
-        test: /signing|getPublic$/,
+        test: /QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X|0260baeaffa1de1e4135e5b395e0380563a622b9599d1b8e012a0f7603f516bdaa$/,
         loader: 'json-loader'
       }
     ]
