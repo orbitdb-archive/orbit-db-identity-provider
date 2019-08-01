@@ -65,7 +65,7 @@ module.exports = {
         }
       },
       {
-        test: /QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X|0260baeaffa1de1e4135e5b395e0380563a622b9599d1b8e012a0f7603f516bdaa$/,
+        test: /existing|QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X|0260baeaffa1de1e4135e5b395e0380563a622b9599d1b8e012a0f7603f516bdaa$/,
         loader: 'json-loader'
       }
     ]

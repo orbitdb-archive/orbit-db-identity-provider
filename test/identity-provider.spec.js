@@ -116,7 +116,6 @@ describe('Identity Provider', function () {
       before(async () => {
         await fs.copy(fixturesPath, savedKeysPath)
         const savedKeysStore = await storage.createStore(savedKeysPath)
-        console.log(savedKeysPath)
         savedKeysKeystore = new Keystore(savedKeysStore)
         identity = await Identities.createIdentity({ id, keystore: savedKeysKeystore })
       })
@@ -127,10 +126,6 @@ describe('Identity Provider', function () {
 
       it('has the correct id', async () => {
         const key = await savedKeysKeystore.getKey(id)
-        console.log(savedKeysKeystore._store.db)
-        console.log(id)
-        console.log(key)
-        console.log(identity.id)
         assert.strictEqual(identity.id, key.public.marshal().toString('hex'))
       })
 
@@ -260,7 +255,7 @@ describe('Identity Provider', function () {
   })
 
   describe('create identity from existing keys', () => {
-    const source = fixturesPath + '/QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
+    const source = fixturesPath + '/existing'
     const publicKey = '045756c20f03ec494d07e8dd8456f67d6bd97ca175e6c4882435fe364392f131406db3a37eebe1d634b105a57b55e4f17247c1ec8ffe04d6a95d1e0ee8bed7cfbd'
     let identity
 
