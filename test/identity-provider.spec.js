@@ -13,8 +13,10 @@ const identityKeysPath = path.resolve('./test/identityKeys')
 const migrate = require('localstorage-level-migration')
 const fs = require('fs-extra')
 
-const leveldown = require('leveldown')
-const storage = require('orbit-db-storage-adapter')(leveldown)
+const implementations = require('orbit-db-test-utils/implementations')
+
+const properLevelModule = implementations.filter(i => i.key.indexOf('level') > -1).map(i => i.module)[0]
+const storage = require('orbit-db-storage-adapter')(properLevelModule)
 
 let keystore, identityStore, signingStore, signingKeystore
 const type = 'orbitdb'
@@ -44,13 +46,14 @@ describe('Identity Provider', function () {
       let identity, externalId
 
       before(async () => {
+        await keystore.close()
         identity = await Identities.createIdentity({ id, keypath: identityKeysPath })
         keystore = identity.provider._keystore
         const key = await keystore.getKey(id)
         externalId = key.public.marshal().toString('hex')
       })
 
-      it('has the correct id', async() => {
+      it('has the correct id', async () => {
         assert.strictEqual(identity.id, externalId)
       })
     })
@@ -60,6 +63,7 @@ describe('Identity Provider', function () {
       let identity, externalId
 
       before(async () => {
+        keystore.open()
         identity = await Identities.createIdentity({ id, keystore })
         keystore = identity.provider._keystore
         const key = await keystore.getKey(id)
@@ -253,7 +257,7 @@ describe('Identity Provider', function () {
   })
 
   describe('create identity from existing keys', () => {
-    const source = fixturesPath + '/QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
+    const source = fixturesPath + '/existing'
     const publicKey = '045756c20f03ec494d07e8dd8456f67d6bd97ca175e6c4882435fe364392f131406db3a37eebe1d634b105a57b55e4f17247c1ec8ffe04d6a95d1e0ee8bed7cfbd'
     let identity
 

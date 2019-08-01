@@ -1,39 +1,60 @@
-# Javascript Node CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
-version: 2
-jobs:
-  build:
+# Use the latest 2.1 version of CircleCI pipeline processing engine, see https://circleci.com/docs/2.0/configuration-reference/
+version: 2.1
+
+executors:
+  node10-browsers:
     docker:
-      # specify the version you desire here
-      - image: circleci/node:8.11.4
+      - image: circleci/node:10-browsers
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
-
-    working_directory: ~/repo
-
+jobs:
+  setup:
+    executor: node10-browsers
     steps:
       - checkout
-
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-          - v1-dependencies-{{ checksum "package.json" }}
-          # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
-
-      - run: npm install
-
-      - save_cache:
+      - run: mkdir -p /tmp/workspace
+      - run: make clean-dependencies
+      - run: make deps
+      - run: npm run lint
+      - run: cp -R index.js src conf node_modules test package.json /tmp/workspace
+      - persist_to_workspace:
+          root: /tmp/workspace
           paths:
+            - src
             - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+            - test
+            - conf
+            - package.json
+            - index.js
+  test-node:
+    executor: node10-browsers
+    steps:
+      - attach_workspace:
+          at: ./
+      - run: npm run test:node
+  test-browser:
+    executor: node10-browsers
+    steps:
+      - attach_workspace:
+          at: ./
+      - run: npm run test:browser
+  build:
+    executor: node10-browsers
+    steps:
+      - attach_workspace:
+          at: ./
+      - run: npm run build
 
-      # run tests!
-      - run: npm test
-
-
+workflows:
+  version: 2
+  Tests:
+    jobs:
+      - setup
+      - test-node:
+          requires:
+            - setup
+      - test-browser:
+          requires:
+            - setup
+      - build:
+          requires:
+            - setup

@@ -1,16 +1,15 @@
 'use strict'
 const IdentityProvider = require('./identity-provider-interface')
 const Keystore = require('orbit-db-keystore')
-const signingKeysPath = './orbitdb/identity/signingkeys'
 const type = 'orbitdb'
 
 class OrbitDBIdentityProvider extends IdentityProvider {
   constructor (options = {}) {
     super()
-    if(!options.keystore) {
-      throw new Error("IdentityProvider.createIdentity requires options.keystore")
+    if (!options.keystore) {
+      throw new Error('IdentityProvider.createIdentity requires options.keystore')
     }
-    if(!options.signingKeystore) {
+    if (!options.signingKeystore) {
       options.signingKeystore = options.keystore
     }
     this._keystore = options.signingKeystore

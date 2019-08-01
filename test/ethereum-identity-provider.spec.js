@@ -8,8 +8,11 @@ const Identities = require('../src/identities')
 const EthIdentityProvider = require('../src/ethereum-identity-provider')
 const Identity = require('../src/identity')
 const keypath = path.resolve('./test/keys')
-const leveldown = require('leveldown')
-const storage = require('orbit-db-storage-adapter')(leveldown)
+
+const implementations = require('orbit-db-test-utils/implementations')
+
+const properLevelModule = implementations.filter(i => i.key.indexOf('level') > -1).map(i => i.module)[0]
+const storage = require('orbit-db-storage-adapter')(properLevelModule)
 
 let keystore, store
 
