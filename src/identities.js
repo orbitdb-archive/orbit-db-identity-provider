@@ -20,6 +20,10 @@ class Identities {
     this._keystore = keystore
   }
 
+  get keystore () { return this._keystore }
+
+  get signingKeystore () { return this._signingKeystore }
+
   async sign (identity, data) {
     const signingKey = await this._keystore.getKey(identity.id)
     if (!signingKey) {
@@ -37,6 +41,8 @@ class Identities {
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
     const id = await identityProvider.getId(options)
+
+    this._signingKeystore = options.signingKeystore
 
     if (options.migrate) {
       await options.migrate({ targetStore: this._keystore._store, targetId: id })
