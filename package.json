@@ -43,7 +43,7 @@
     "@babel/runtime": "^7.5.5",
     "fs-extra": "^7.0.1",
     "json-loader": "^0.5.7",
-    "localstorage-level-migration": "github:orbitdb/localstorage-level-migration#master",
+    "localstorage-level-migration": "next",
     "mocha": "^5.2.0",
     "mocha-headless-chrome": "^2.0.3",
     "orbit-db-storage-adapter": "^0.4.1",
@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "ethers": "^4.0.20",
-    "orbit-db-keystore": "orbitdb/orbit-db-keystore#master"
+    "orbit-db-keystore": "next"
   },
   "localMaintainers": [
     "haad <haad@haja.io>",
