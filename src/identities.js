@@ -3,7 +3,7 @@ const Identity = require('./identity')
 const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
 const type = 'orbitdb'
-const keypath = './orbitdb/identity/identitykeys'
+const identityKeysPath = './orbitdb/identity/identitykeys'
 const supportedTypes = {
   orbitdb: OrbitDBIdentityProvider
 }
@@ -16,8 +16,9 @@ const getHandlerFor = (type) => {
 }
 
 class Identities {
-  constructor (keystore) {
-    this._keystore = keystore
+  constructor (options) {
+    this._keystore = options.keystore
+    this._signingKeystore = options.signingKeystore || this._keystore
   }
 
   get keystore () { return this._keystore }
@@ -41,8 +42,6 @@ class Identities {
     const IdentityProvider = getHandlerFor(options.type)
     const identityProvider = new IdentityProvider(options)
     const id = await identityProvider.getId(options)
-
-    this._signingKeystore = options.signingKeystore
 
     if (options.migrate) {
       await options.migrate({ targetStore: this._keystore._store, targetId: id })
@@ -76,11 +75,17 @@ class Identities {
 
   static async createIdentity (options = {}) {
     if (!options.keystore) {
-      options.keystore = new Keystore(options.keypath || keypath)
+      options.keystore = new Keystore(options.identityKeysPath || identityKeysPath)
     }
-    if (!options.signingKeystore) options.signingKeystore = options.keystore
+    if (!options.signingKeystore) {
+      if (options.signingKeysPath) {
+        options.signingKeystore = new Keystore(options.signingKeysPath)
+      } else {
+        options.signingKeystore = options.keystore
+      }
+    }
     options = Object.assign({}, { type }, options)
-    const identities = new Identities(options.keystore)
+    const identities = new Identities(options)
     return identities.createIdentity(options)
   }
 
