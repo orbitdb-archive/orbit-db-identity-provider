@@ -33,6 +33,20 @@ describe('Identity Provider', function () {
   describe('Creating Identities', () => {
     const id = 'A'
     let identity
+    const identityPath = `${identityKeysPath}-${id}`
+    const signingPath = `${signingKeysPath}-${id}`
+
+    before(async () => {
+      const identityStore = await storage.createStore(identityPath)
+      const signingStore = await storage.createStore(signingPath)
+      await identityStore.close()
+      await signingStore.close()
+    })
+
+    after(async () => {
+      rmrf.sync(signingPath)
+      rmrf.sync(identityPath)
+    })
 
     it('identityKeysPath only - has the correct id', async () => {
       identity = await Identities.createIdentity({ id, identityKeysPath })

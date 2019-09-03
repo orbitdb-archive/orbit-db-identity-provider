@@ -1,4 +1,5 @@
 'use strict'
+
 const Identity = require('./identity')
 const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
@@ -74,12 +75,14 @@ class Identities {
   }
 
   static async createIdentity (options = {}) {
+    const identityPath = `${options.identityKeysPath || identityKeysPath}-${options.id || ''}`
     if (!options.keystore) {
-      options.keystore = new Keystore(options.identityKeysPath || identityKeysPath)
+      options.keystore = new Keystore(identityPath)
     }
     if (!options.signingKeystore) {
       if (options.signingKeysPath) {
-        options.signingKeystore = new Keystore(options.signingKeysPath)
+        const signingPath = `${options.signingKeysPath}-${options.id || ''}`
+        options.signingKeystore = new Keystore(signingPath)
       } else {
         options.signingKeystore = options.keystore
       }
