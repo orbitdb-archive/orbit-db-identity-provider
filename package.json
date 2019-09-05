@@ -62,7 +62,6 @@
   "dependencies": {
     "ethers": "^4.0.20",
     "json-stringify-deterministic": "^1.0.1",
-    "lru-cache": "^5.1.1",
     "orbit-db-keystore": "next"
   },
   "localMaintainers": [
