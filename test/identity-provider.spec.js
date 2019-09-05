@@ -12,6 +12,7 @@ const signingKeysPath = path.resolve('./test/signingKeys')
 const identityKeysPath = path.resolve('./test/identityKeys')
 const migrate = require('localstorage-level-migration')
 const fs = require('fs-extra')
+const hrtime = require('browser-process-hrtime')
 
 const { defaultStorage } = require('orbit-db-test-utils')
 
@@ -42,6 +43,21 @@ describe('Identity Provider', function () {
     })
 
     it('identityKeysPath and signingKeysPath - has a different id', async () => {
+      identity = await Identities.createIdentity({ id, identityKeysPath, signingKeysPath })
+      const key = await identity.provider.keystore.getKey(id)
+      const externalId = key.public.marshal().toString('hex')
+      assert.notStrictEqual(identity.id, externalId)
+    })
+
+    it('returns a cached identity upon calling crateIdentity identically multiple times', async () => {
+      const startTime = hrtime()[1]
+      identity = await Identities.createIdentity({ id, identityKeysPath, signingKeysPath })
+      const afterCreationTime = hrtime()[1]
+      identity = await Identities.createIdentity({ id, identityKeysPath, signingKeysPath })
+      const afterCacheTime = hrtime()[1]
+      assert.strictEqual(afterCreationTime - startTime > afterCacheTime - afterCreationTime, true)
+      identity = await Identities.createIdentity({ id, identityKeysPath, signingKeysPath })
+      identity = await Identities.createIdentity({ id, identityKeysPath, signingKeysPath })
       identity = await Identities.createIdentity({ id, identityKeysPath, signingKeysPath })
       const key = await identity.provider.keystore.getKey(id)
       const externalId = key.public.marshal().toString('hex')

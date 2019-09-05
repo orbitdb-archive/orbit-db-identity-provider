@@ -7,6 +7,9 @@ const identityKeysPath = './orbitdb/identity/identitykeys'
 const supportedTypes = {
   orbitdb: OrbitDBIdentityProvider
 }
+const stringify = require('json-stringify-deterministic')
+
+const knownIdentities = {}
 
 const getHandlerFor = (type) => {
   if (!Identities.isSupported(type)) {
@@ -74,6 +77,9 @@ class Identities {
   }
 
   static async createIdentity (options = {}) {
+    const cacheKey = stringify(options)
+    if (knownIdentities[cacheKey]) return knownIdentities[cacheKey]
+
     if (!options.keystore) {
       options.keystore = new Keystore(options.identityKeysPath || identityKeysPath)
     }
@@ -86,7 +92,9 @@ class Identities {
     }
     options = Object.assign({}, { type }, options)
     const identities = new Identities(options)
-    return identities.createIdentity(options)
+    const identity = await identities.createIdentity(options)
+    knownIdentities[cacheKey] = identity
+    return Promise.resolve(identity)
   }
 
   static isSupported (type) {
