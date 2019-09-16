@@ -4,15 +4,12 @@ const Keystore = require('orbit-db-keystore')
 const type = 'orbitdb'
 
 class OrbitDBIdentityProvider extends IdentityProvider {
-  constructor (options = {}) {
+  constructor (keystore) {
     super()
-    if (!options.keystore) {
+    if (!keystore) {
       throw new Error('IdentityProvider.createIdentity requires options.keystore')
     }
-    if (!options.signingKeystore) {
-      options.signingKeystore = options.keystore
-    }
-    this._keystore = options.signingKeystore
+    this._keystore = keystore
   }
 
   // Returns the type of the identity provider
@@ -25,6 +22,7 @@ class OrbitDBIdentityProvider extends IdentityProvider {
     }
 
     const keystore = this._keystore
+    // console.log("keystoer", keystore)
     const key = await keystore.getKey(id) || await keystore.createKey(id)
     return key.public.marshal().toString('hex')
   }

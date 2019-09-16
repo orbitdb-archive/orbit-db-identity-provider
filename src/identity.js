@@ -2,7 +2,7 @@
 const isDefined = require('./is-defined')
 
 class Identity {
-  constructor (id, publicKey, idSignature, pubKeyIdSignature, type, provider) {
+  constructor (id, publicKey, idSignature, pubKeyIdSignature, type) {
     if (!isDefined(id)) {
       throw new Error('Identity id is required')
     }
@@ -23,15 +23,10 @@ class Identity {
       throw new Error('Identity type is required')
     }
 
-    if (!isDefined(provider)) {
-      throw new Error('Identity provider is required')
-    }
-
     this._id = id
     this._publicKey = publicKey
     this._signatures = Object.assign({}, { id: idSignature }, { publicKey: pubKeyIdSignature })
     this._type = type
-    this._provider = provider
   }
 
   /**
@@ -52,10 +47,6 @@ class Identity {
 
   get type () {
     return this._type
-  }
-
-  get provider () {
-    return this._provider
   }
 
   toJSON () {
