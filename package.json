@@ -1,6 +1,6 @@
 {
   "name": "orbit-db-identity-provider",
-  "version": "0.2.0-rc3",
+  "version": "0.2.0",
   "description": "Default identity provider for OrbitDB",
   "main": "index.js",
   "scripts": {
@@ -43,7 +43,7 @@
     "@babel/runtime": "^7.5.5",
     "fs-extra": "^7.0.1",
     "json-loader": "^0.5.7",
-    "localstorage-level-migration": "next",
+    "localstorage-level-migration": "~0.1.0",
     "mocha": "^5.2.0",
     "mocha-headless-chrome": "^2.0.3",
     "orbit-db-storage-adapter": "^0.4.2",
@@ -60,7 +60,7 @@
   },
   "dependencies": {
     "ethers": "^4.0.20",
-    "orbit-db-keystore": "next"
+    "orbit-db-keystore": "~0.3.0"
   },
   "localMaintainers": [
     "haad <haad@haja.io>",

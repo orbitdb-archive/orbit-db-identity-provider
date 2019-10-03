@@ -1,5 +1,6 @@
 test
-webpack.config.js
+conf
 .circleci
 orbitdb
-index-browser.min.js.map
+dist/*.js.map
+Makefile
