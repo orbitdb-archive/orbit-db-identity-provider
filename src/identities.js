@@ -23,7 +23,7 @@ class Identities {
     this._signingKeystore = options.signingKeystore || this._keystore
   }
   
-  static get IdentityProvider { return IdentityProvider; }
+  static get IdentityProvider () { return IdentityProvider; }
 
   get keystore () { return this._keystore }
 
