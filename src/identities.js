@@ -1,7 +1,9 @@
 'use strict'
 const Identity = require('./identity')
+const IdentityProvider = require('./identity-provider-interface.js')
 const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
+
 const type = 'orbitdb'
 const identityKeysPath = './orbitdb/identity/identitykeys'
 const supportedTypes = {
@@ -20,6 +22,8 @@ class Identities {
     this._keystore = options.keystore
     this._signingKeystore = options.signingKeystore || this._keystore
   }
+
+  static get IdentityProvider () { return IdentityProvider }
 
   get keystore () { return this._keystore }
 
