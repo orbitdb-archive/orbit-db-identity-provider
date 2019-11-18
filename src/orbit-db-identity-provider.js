@@ -22,7 +22,6 @@ class OrbitDBIdentityProvider extends IdentityProvider {
     }
 
     const keystore = this._keystore
-    // console.log("keystoer", keystore)
     const key = await keystore.getKey(id) || await keystore.createKey(id)
     return key.public.marshal().toString('hex')
   }

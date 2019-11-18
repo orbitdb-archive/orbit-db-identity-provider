@@ -38,8 +38,9 @@ The `Identity` object contains signatures proving possession of some external id
 ### Creating an identity
 ```js
 const Identities = require('orbit-db-identity-provider')
+const identities = new Identities()
 const options = { id: 'local-id'}
-const identity = await Identities.createIdentity(options)
+const identity = await identities.createIdentity(options)
 
 console.log(identity.toJSON())
 // prints
@@ -58,7 +59,7 @@ If `options.type` is not specified, Identities will default to creating an ident
 
 To use an existing keystore, you can pass it as an argument in the options as follows:
 ```js
-const identity = await Identities.createIdentity({ id: 'local-id', keystore: existingKeystore })
+const identity = await identities.createIdentity({ id: 'local-id', keystore: existingKeystore })
 ```
 
 ### Create identity using existing keys
@@ -66,10 +67,9 @@ const identity = await Identities.createIdentity({ id: 'local-id', keystore: exi
 To create an identity using existing keys, you need to install `localstorage-level-migration`
 
 ```js
-const Identities = require('orbit-db-identity-provider')
-const migrate = require('localstorage-level-migration')
-const options = { id: 'new-id', migrate: migrate('/path/to/keys') }
-const identity = await Identities.createIdentity(options)
+const identities = new Identities({ keystore: existingKeystore })
+const options = { id: 'new-id', migrate: '/path/to/keys' }
+const identity = await identities.createIdentity(options)
 
 console.log(identity.toJSON())
 // prints
@@ -100,7 +100,7 @@ class MyIdentityProvider extends IdentityProvider {
 Identities.addIdentityProvider(MyIdentityProvider)
 
 // to create an identity of type `MyIdentityType`
-const identity = await Identities.createIdentity({ type: `MyIdentityType`})
+const identity = await identities.createIdentity({ type: `MyIdentityType`})
 
 ```
 

@@ -32,10 +32,6 @@ describe('Identity', function () {
     assert.strictEqual(identity.signatures.publicKey, publicKeyAndIdSignature)
   })
 
-  // it('has the correct provider', async () => {
-  //   assert.deepStrictEqual(identity.provider, provider)
-  // })
-
   it('converts identity to a JSON object', async () => {
     const expected = {
       id: id,
