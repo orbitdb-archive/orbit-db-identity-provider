@@ -4,7 +4,9 @@ const IdentityProvider = require('./identity-provider-interface.js')
 const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
 const LRU = require('lru')
-const identityKeysPath = './orbitdb/identity/keys'
+const path = require('path')
+
+const identityKeysPath = path.join('./orbitdb', 'identity', 'identitykeys')
 const defaultType = 'orbitdb'
 const supportedTypes = {
   orbitdb: OrbitDBIdentityProvider
@@ -37,15 +39,9 @@ class Identities {
   }
 
   async createIdentity (options = {}) {
-    let identityProvider
     const keystore = options.keystore || this.keystore
     const type = options.type || defaultType
-    if (type === defaultType) {
-      identityProvider = new OrbitDBIdentityProvider(options.signingKeystore || keystore)
-    } else {
-      const IdentityProvider = getHandlerFor(type)
-      identityProvider = new IdentityProvider(options)
-    }
+    const identityProvider = type === defaultType ? new OrbitDBIdentityProvider(options.signingKeystore || keystore) : new (getHandlerFor(type))(options)
     const id = await identityProvider.getId(options)
     if (options.migrate) {
       await options.migrate({ targetStore: keystore._store, targetId: id })
