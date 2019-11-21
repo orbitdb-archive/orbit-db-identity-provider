@@ -29,6 +29,12 @@ class Identities {
 
   get keystore () { return this._keystore }
 
+  async close () {
+    if (this.keystore.close) {
+      await this.keystore.close()
+    }
+  }
+
   async sign (identity, data) {
     const keystore = this.keystore
     const signingKey = await keystore.getKey(identity.id)
@@ -36,6 +42,10 @@ class Identities {
       throw new Error(`Private signing key not found from Keystore`)
     }
     return keystore.sign(signingKey, data)
+  }
+
+  async verify (sig, key, data, version) {
+    return this.keystore.verify(sig, key, data, version)
   }
 
   async createIdentity (options = {}) {

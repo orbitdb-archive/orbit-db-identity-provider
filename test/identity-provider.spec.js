@@ -240,7 +240,7 @@ describe('Identity Provider', function () {
     })
   })
 
-  describe('sign data with an identity', () => {
+  describe('sign data with identities', () => {
     const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'
     const data = 'hello friend'
     let identities, identity, keystore, signingKeystore
@@ -283,7 +283,7 @@ describe('Identity Provider', function () {
     })
   })
 
-  describe('verify data signed by an identity', () => {
+  describe('verify data with identities', () => {
     const id = '03602a3da3eb35f1148e8028f141ec415ef7f6d4103443edbfec2a0711d716f53f'
     const data = 'hello friend'
     let identities, identity, keystore
@@ -292,21 +292,23 @@ describe('Identity Provider', function () {
     before(async () => {
       const identityStore = await storage.createStore(identityKeysPath)
       keystore = new Keystore(identityStore)
-    })
-
-    beforeEach(async () => {
       identities = new Identities({ keystore })
       identity = await identities.createIdentity({ id, type })
-      signature = await identities.sign(identity, data, keystore)
+      signature = await identities.sign(identity, data)
     })
 
     it('verifies that the signature is valid', async () => {
-      const verified = await keystore.verify(signature, identity.publicKey, data)
+      const verified = await identities.verify(signature, identity.publicKey, data)
       assert.strictEqual(verified, true)
     })
 
+    it('doesn not verify invalid signature', async () => {
+      const verified = await identities.verify(signature, identity.publicKey, 'bad data')
+      assert.strictEqual(verified, false)
+    })
+
     after(async () => {
-      await keystore.close()
+      await identities.close()
     })
   })
 
@@ -328,12 +330,12 @@ describe('Identity Provider', function () {
 
     it('verifies signatures signed by existing key', async () => {
       const sig = '3045022067aa0eacf268ed8a94f07a1f352f8e4e03f2168e75896aaa18709bc759cd8f41022100e9f9b281a0873efb86d52aef647d8dedc6e3e4e383c8a82258a9e1da78bf2057'
-      const ver = await keystore.verify(sig, identity.publicKey, 'signme', 'v0')
+      const ver = await identities.verify(sig, identity.publicKey, 'signme', 'v0')
       assert.strictEqual(ver, true)
     })
 
     after(async () => {
-      await keystore.close()
+      await identities.close()
     })
   })
 })
