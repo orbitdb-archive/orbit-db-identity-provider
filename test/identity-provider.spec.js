@@ -231,7 +231,7 @@ describe('Identity Provider', function () {
     it('identity verifies', async () => {
       identities = new Identities({ keystore })
       identity = await identities.createIdentity({ id, type })
-      const verified = await identities.verifyIdentity(identity, keystore)
+      const verified = await identities.verifyIdentity(identity)
       assert.strictEqual(verified, true)
     })
 

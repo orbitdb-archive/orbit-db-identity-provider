@@ -69,6 +69,10 @@ class Identities {
   }
 
   async verifyIdentity (identity) {
+    if (!Identity.isIdentity(identity)) {
+      return false
+    }
+
     const knownID = this._knownIdentities.get(identity.signatures.id)
     if (knownID) {
       return identity.id === knownID.id &&
@@ -84,6 +88,10 @@ class Identities {
   }
 
   static async verifyIdentity (identity, keystore) {
+    if (!Identity.isIdentity(identity)) {
+      return false
+    }
+    
     const verifyId = await keystore.verify(
       identity.signatures.id,
       identity.publicKey,

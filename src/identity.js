@@ -29,6 +29,14 @@ class Identity {
     this._type = type
   }
 
+  static isIdentity(identity) {
+    return identity.id !== undefined &&
+           identity.publicKey !== undefined &&
+           identity.signatures.id !== undefined &&
+           identity.signatures.publicKey !== undefined &&
+           identity.type !== undefined
+  }
+
   /**
   * This is only used as a fallback to the clock id when necessary
   * @return {string} public key hex encoded
