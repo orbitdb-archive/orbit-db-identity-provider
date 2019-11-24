@@ -29,7 +29,7 @@ class Identity {
     this._type = type
   }
 
-  static isIdentity(identity) {
+  static isIdentity (identity) {
     return identity.id !== undefined &&
            identity.publicKey !== undefined &&
            identity.signatures.id !== undefined &&

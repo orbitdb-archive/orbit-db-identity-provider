@@ -91,7 +91,7 @@ class Identities {
     if (!Identity.isIdentity(identity)) {
       return false
     }
-    
+
     const verifyId = await keystore.verify(
       identity.signatures.id,
       identity.publicKey,
