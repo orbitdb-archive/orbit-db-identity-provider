@@ -32,41 +32,49 @@ describe('Identity Provider', function () {
 
   describe('Creating Identities', () => {
     const id = 'A'
-    let identity
+    let identities, identity, keystore, signingKeystore
+
+    before(async () => {
+      const identityStore = await storage.createStore(identityKeysPath)
+      keystore = new Keystore(identityStore)
+      const signingStore = await storage.createStore(signingKeysPath)
+      signingKeystore = new Keystore(signingStore)
+      identities = new Identities({ keystore })
+    })
 
     it('identityKeysPath only - has the correct id', async () => {
-      identity = await Identities.createIdentity({ id, identityKeysPath })
-      const key = await identity.provider.keystore.getKey(id)
+      identity = await identities.createIdentity({ id })
+      const key = await identities.keystore.getKey(id)
       const externalId = key.public.marshal().toString('hex')
       assert.strictEqual(identity.id, externalId)
     })
 
     it('identityKeysPath and signingKeysPath - has a different id', async () => {
-      identity = await Identities.createIdentity({ id, identityKeysPath, signingKeysPath })
-      const key = await identity.provider.keystore.getKey(id)
+      identity = await identities.createIdentity({ id, signingKeystore })
+      const key = await identities.keystore.getKey(id)
       const externalId = key.public.marshal().toString('hex')
       assert.notStrictEqual(identity.id, externalId)
     })
 
-    afterEach(async () => {
-      await identity.provider.keystore.close()
-      await identity.provider.signingKeystore.close()
+    after(async () => {
+      await keystore.close()
+      await signingKeystore.close()
     })
   })
 
   describe('Passing in custom keystore', async () => {
-    const id = 'B'; let identity; let keystore; let signingKeystore
+    const id = 'B'
+    let identities, identity
+    let keystore
 
     before(async () => {
       const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
       keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
     })
 
     it('has the correct id', async () => {
-      identity = await Identities.createIdentity({ id, keystore })
-      keystore = identity.provider._keystore
+      identities = new Identities({ keystore })
+      identity = await identities.createIdentity({ id })
       const key = await keystore.getKey(id)
       const externalId = key.public.marshal().toString('hex')
       assert.strictEqual(identity.id, externalId)
@@ -108,21 +116,11 @@ describe('Identity Provider', function () {
 
     after(async () => {
       await keystore.close()
-      await signingKeystore.close()
     })
   })
 
   describe('create an identity with saved keys', () => {
-    let keystore, signingKeystore
-
-    before(async () => {
-      const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
-      keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
-    })
-
-    let savedKeysKeystore, identity
+    let savedKeysKeystore, identities, identity
     const id = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
 
     const expectedPublicKey = '040d78ff62afb656ac62db1aae3b1536a614991e28bb4d721498898b7d4194339640cd18c37b259e2c77738de0d6f9a5d52e0b936611de6b6ba78891a8b2a38317'
@@ -133,7 +131,8 @@ describe('Identity Provider', function () {
       await fs.copy(fixturesPath, savedKeysPath)
       const savedKeysStore = await storage.createStore(savedKeysPath)
       savedKeysKeystore = new Keystore(savedKeysStore)
-      identity = await Identities.createIdentity({ id, keystore: savedKeysKeystore })
+      identities = new Identities({ keystore: savedKeysKeystore })
+      identity = await identities.createIdentity({ id })
     })
 
     after(async () => {
@@ -171,14 +170,13 @@ describe('Identity Provider', function () {
     })
 
     after(async () => {
-      await keystore.close()
-      await signingKeystore.close()
+      await savedKeysKeystore.close()
     })
   })
 
   describe('verify identity\'s signature', () => {
     const id = 'QmFoo'
-    let identity, keystore, signingKeystore
+    let identities, identity, keystore, signingKeystore
 
     before(async () => {
       const identityStore = await storage.createStore(identityKeysPath)
@@ -188,31 +186,30 @@ describe('Identity Provider', function () {
     })
 
     it('identity pkSignature verifies', async () => {
-      identity = await Identities.createIdentity({ id, type, keystore, signingKeystore })
+      identities = new Identities({ keystore })
+      identity = await identities.createIdentity({ id, type, signingKeystore })
       const verified = await Keystore.verify(identity.signatures.id, identity.publicKey, identity.id)
       assert.strictEqual(verified, true)
     })
 
     it('identity signature verifies', async () => {
-      identity = await Identities.createIdentity({ id, type, keystore, signingKeystore })
+      identities = new Identities({ keystore })
+      identity = await identities.createIdentity({ id, type, signingKeystore })
       const verified = await Keystore.verify(identity.signatures.publicKey, identity.id, identity.publicKey + identity.signatures.id)
       assert.strictEqual(verified, true)
     })
 
+    it('identity provider verifies identity', async () => {
+      identities = new Identities({ keystore })
+      identity = await identities.createIdentity({ id, type, signingKeystore })
+      const verified = await identities.verifyIdentity(identity)
+      assert.strictEqual(verified, true)
+    })
+
     it('false signature doesn\'t verify', async () => {
-      class IP {
-        async getId () { return 'pubKey' }
-
-        async signIdentity (data) { return `false signature '${data}'` }
-
-        static async verifyIdentity (data) { return false }
-
-        static get type () { return 'fake' }
-      }
-
-      Identities.addIdentityProvider(IP)
-      identity = await Identities.createIdentity({ type: IP.type, keystore, signingKeystore })
-      const verified = await Identities.verifyIdentity(identity)
+      identity = await identities.createIdentity({ id: 'A' })
+      identity.signatures.publicKey = 'fake'
+      const verified = await identities.verifyIdentity(identity)
       assert.strictEqual(verified, false)
     })
 
@@ -224,54 +221,55 @@ describe('Identity Provider', function () {
 
   describe('verify identity', () => {
     const id = 'QmFoo'
-    let identity, keystore, signingKeystore
+    let identities, identity, keystore
 
     before(async () => {
       const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
       keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
     })
 
     it('identity verifies', async () => {
-      identity = await Identities.createIdentity({ id, type, keystore, signingKeystore })
-      const verified = await identity.provider.verifyIdentity(identity)
+      identities = new Identities({ keystore })
+      identity = await identities.createIdentity({ id, type })
+      const verified = await identities.verifyIdentity(identity)
       assert.strictEqual(verified, true)
     })
 
     after(async () => {
       await keystore.close()
-      await signingKeystore.close()
     })
   })
 
-  describe('sign data with an identity', () => {
+  describe('sign data with identities', () => {
     const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'
     const data = 'hello friend'
-    let identity, keystore, signingKeystore
+    let identities, identity, keystore, signingKeystore
 
     before(async () => {
       const identityStore = await storage.createStore(identityKeysPath)
       const signingStore = await storage.createStore(signingKeysPath)
       keystore = new Keystore(identityStore)
       signingKeystore = new Keystore(signingStore)
-      identity = await Identities.createIdentity({ id, keystore, signingKeystore })
+      identities = new Identities({ keystore })
+      identity = await identities.createIdentity({ id, signingKeystore })
     })
 
     it('sign data', async () => {
-      const signingKey = await keystore.getKey(identity.id)
-      const expectedSignature = await keystore.sign(signingKey, data)
-      const signature = await identity.provider.sign(identity, data, keystore)
-      assert.strictEqual(signature, expectedSignature)
+      const expectedIdSignature = await identities.sign(identity, identity.id)
+
+      const pkSigningKey = await signingKeystore.getKey(id)
+      const expectedPkSignature = await signingKeystore.sign(pkSigningKey, identity.publicKey + expectedIdSignature)
+      assert.strictEqual(identity.signatures.id, expectedIdSignature)
+      assert.strictEqual(identity.signatures.publicKey, expectedPkSignature)
     })
 
     it('throws an error if private key is not found from keystore', async () => {
       // Remove the key from the keystore (we're using a mock storage in these tests)
-      const modifiedIdentity = new Identity('this id does not exist', identity.publicKey, '<sig>', identity.signatures, identity.type, identity.provider)
+      const modifiedIdentity = new Identity('this id does not exist', identity.publicKey, '<sig>', identity.signatures, identity.type)
       let signature
       let err
       try {
-        signature = await identity.provider.sign(modifiedIdentity, data, keystore)
+        signature = await identities.sign(modifiedIdentity, data)
       } catch (e) {
         err = e.toString()
       }
@@ -285,51 +283,45 @@ describe('Identity Provider', function () {
     })
   })
 
-  describe('verify data signed by an identity', () => {
+  describe('verify data with identities', () => {
     const id = '03602a3da3eb35f1148e8028f141ec415ef7f6d4103443edbfec2a0711d716f53f'
     const data = 'hello friend'
-    let identity, keystore, signingKeystore
+    let identities, identity, keystore
     let signature
 
     before(async () => {
       const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
       keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
-    })
-
-    beforeEach(async () => {
-      identity = await Identities.createIdentity({ id, type, keystore, signingKeystore })
-      signature = await identity.provider.sign(identity, data, keystore)
+      identities = new Identities({ keystore })
+      identity = await identities.createIdentity({ id, type })
+      signature = await identities.sign(identity, data)
     })
 
     it('verifies that the signature is valid', async () => {
-      const verified = await identity.provider.verify(signature, identity.publicKey, data)
+      const verified = await identities.verify(signature, identity.publicKey, data)
       assert.strictEqual(verified, true)
     })
 
-    it('doesn\'t verify invalid signature', async () => {
-      const verified = await identity.provider.verify('invalid', identity.publicKey, data)
+    it('doesn not verify invalid signature', async () => {
+      const verified = await identities.verify(signature, identity.publicKey, 'bad data')
       assert.strictEqual(verified, false)
     })
 
     after(async () => {
-      await keystore.close()
-      await signingKeystore.close()
+      await identities.close()
     })
   })
 
   describe('create identity from existing keys', () => {
     const source = fixturesPath + '/existing'
     const publicKey = '045756c20f03ec494d07e8dd8456f67d6bd97ca175e6c4882435fe364392f131406db3a37eebe1d634b105a57b55e4f17247c1ec8ffe04d6a95d1e0ee8bed7cfbd'
-    let identity, keystore, signingKeystore
+    let identities, identity, keystore
 
     before(async () => {
       const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
       keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
-      identity = await Identities.createIdentity({ id: 'A', migrate: migrate(source), keystore, signingKeystore })
+      identities = new Identities({ keystore })
+      identity = await identities.createIdentity({ id: 'A', migrate: migrate(source) })
     })
 
     it('creates identity with correct public key', async () => {
@@ -338,13 +330,12 @@ describe('Identity Provider', function () {
 
     it('verifies signatures signed by existing key', async () => {
       const sig = '3045022067aa0eacf268ed8a94f07a1f352f8e4e03f2168e75896aaa18709bc759cd8f41022100e9f9b281a0873efb86d52aef647d8dedc6e3e4e383c8a82258a9e1da78bf2057'
-      const ver = await identity.provider.verify(sig, identity.publicKey, 'signme', 'v0')
+      const ver = await identities.verify(sig, identity.publicKey, 'signme', 'v0')
       assert.strictEqual(ver, true)
     })
 
     after(async () => {
-      await keystore.close()
-      await signingKeystore.close()
+      await identities.close()
     })
   })
 })

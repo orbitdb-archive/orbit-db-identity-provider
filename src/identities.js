@@ -3,9 +3,11 @@ const Identity = require('./identity')
 const IdentityProvider = require('./identity-provider-interface.js')
 const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
+const LRU = require('lru')
+const path = require('path')
 
-const type = 'orbitdb'
-const identityKeysPath = './orbitdb/identity/identitykeys'
+const identityKeysPath = path.join('./orbitdb', 'identity', 'identitykeys')
+const defaultType = 'orbitdb'
 const supportedTypes = {
   orbitdb: OrbitDBIdentityProvider
 }
@@ -18,45 +20,48 @@ const getHandlerFor = (type) => {
 }
 
 class Identities {
-  constructor (options) {
-    this._keystore = options.keystore
-    this._signingKeystore = options.signingKeystore || this._keystore
+  constructor (options = {}) {
+    this._keystore = options.keystore || new Keystore(options.identityKeysPath || identityKeysPath)
+    this._knownIdentities = options.cache || new LRU(options.cacheSize || 1000)
   }
 
   static get IdentityProvider () { return IdentityProvider }
 
   get keystore () { return this._keystore }
 
-  get signingKeystore () { return this._signingKeystore }
+  async close () {
+    if (this.keystore.close) {
+      await this.keystore.close()
+    }
+  }
 
   async sign (identity, data) {
-    const signingKey = await this._keystore.getKey(identity.id)
+    const keystore = this.keystore
+    const signingKey = await keystore.getKey(identity.id)
     if (!signingKey) {
       throw new Error(`Private signing key not found from Keystore`)
     }
-    const sig = await this._keystore.sign(signingKey, data)
-    return sig
+    return keystore.sign(signingKey, data)
   }
 
-  async verify (signature, publicKey, data, verifier = 'v1') {
-    return this._keystore.verify(signature, publicKey, data, verifier)
+  async verify (sig, key, data, version) {
+    return this.keystore.verify(sig, key, data, version)
   }
 
   async createIdentity (options = {}) {
-    const IdentityProvider = getHandlerFor(options.type)
-    const identityProvider = new IdentityProvider(options)
+    const keystore = options.keystore || this.keystore
+    const type = options.type || defaultType
+    const identityProvider = type === defaultType ? new OrbitDBIdentityProvider(options.signingKeystore || keystore) : new (getHandlerFor(type))(options)
     const id = await identityProvider.getId(options)
-
     if (options.migrate) {
-      await options.migrate({ targetStore: this._keystore._store, targetId: id })
+      await options.migrate({ targetStore: keystore._store, targetId: id })
     }
-    const { publicKey, idSignature } = await this.signId(id)
+    const { publicKey, idSignature } = await this.signId(id, keystore)
     const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
-    return new Identity(id, publicKey, idSignature, pubKeyIdSignature, IdentityProvider.type, this)
+    return new Identity(id, publicKey, idSignature, pubKeyIdSignature, type)
   }
 
-  async signId (id) {
-    const keystore = this._keystore
+  async signId (id, keystore) {
     const key = await keystore.getKey(id) || await keystore.createKey(id)
     const publicKey = keystore.getPublic(key)
     const idSignature = await keystore.sign(key, id)
@@ -64,33 +69,36 @@ class Identities {
   }
 
   async verifyIdentity (identity) {
-    const verified = await this._keystore.verify(
+    if (!Identity.isIdentity(identity)) {
+      return false
+    }
+
+    const knownID = this._knownIdentities.get(identity.signatures.id)
+    if (knownID) {
+      return identity.id === knownID.id &&
+             identity.publicKey === knownID.publicKey &&
+             identity.signatures.id === knownID.signatures.id &&
+             identity.signatures.publicKey === knownID.signatures.publicKey
+    }
+    const verified = await Identities.verifyIdentity(identity, this.keystore)
+    if (verified) {
+      this._knownIdentities.set(identity.signatures.id, identity)
+    }
+    return verified
+  }
+
+  static async verifyIdentity (identity, keystore) {
+    if (!Identity.isIdentity(identity)) {
+      return false
+    }
+
+    const verifyId = await keystore.verify(
       identity.signatures.id,
       identity.publicKey,
       identity.id
     )
-    return verified && Identities.verifyIdentity(identity)
-  }
-
-  static async verifyIdentity (identity) {
     const IdentityProvider = getHandlerFor(identity.type)
-    return IdentityProvider.verifyIdentity(identity)
-  }
-
-  static async createIdentity (options = {}) {
-    if (!options.keystore) {
-      options.keystore = new Keystore(options.identityKeysPath || identityKeysPath)
-    }
-    if (!options.signingKeystore) {
-      if (options.signingKeysPath) {
-        options.signingKeystore = new Keystore(options.signingKeysPath)
-      } else {
-        options.signingKeystore = options.keystore
-      }
-    }
-    options = Object.assign({}, { type }, options)
-    const identities = new Identities(options)
-    return identities.createIdentity(options)
+    return verifyId && IdentityProvider.verifyIdentity(identity)
   }
 
   static isSupported (type) {
