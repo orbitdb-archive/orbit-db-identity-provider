@@ -4,8 +4,12 @@ const IdentityProvider = require('./identity-provider-interface.js')
 const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
 const Keystore = require('orbit-db-keystore')
 
-const type = 'orbitdb'
-const identityKeysPath = './orbitdb/identity/identitykeys'
+const LRU = require('lru')
+const path = require('path')
+
+const defaultType = 'orbitdb'
+const identityKeysPath = path.join('./orbitdb', 'identity', 'identitykeys')
+
 const supportedTypes = {
   orbitdb: OrbitDBIdentityProvider
 }
@@ -21,6 +25,7 @@ class Identities {
   constructor (options) {
     this._keystore = options.keystore
     this._signingKeystore = options.signingKeystore || this._keystore
+    this._knownIdentities = options.cache || new LRU(options.cacheSize || 100)
   }
 
   static get IdentityProvider () { return IdentityProvider }
@@ -43,16 +48,17 @@ class Identities {
   }
 
   async createIdentity (options = {}) {
-    const IdentityProvider = getHandlerFor(options.type)
-    const identityProvider = new IdentityProvider(options)
+    const keystore = options.keystore || this.keystore
+    const type = options.type || defaultType
+    const identityProvider = type === defaultType ? new OrbitDBIdentityProvider(options.signingKeystore || keystore) : new (getHandlerFor(type))(options)
     const id = await identityProvider.getId(options)
 
     if (options.migrate) {
-      await options.migrate({ targetStore: this._keystore._store, targetId: id })
+      await options.migrate({ targetStore: keystore._store, targetId: id })
     }
     const { publicKey, idSignature } = await this.signId(id)
     const pubKeyIdSignature = await identityProvider.signIdentity(publicKey + idSignature, options)
-    return new Identity(id, publicKey, idSignature, pubKeyIdSignature, IdentityProvider.type, this)
+    return new Identity(id, publicKey, idSignature, pubKeyIdSignature, type, this)
   }
 
   async signId (id) {
@@ -64,15 +70,47 @@ class Identities {
   }
 
   async verifyIdentity (identity) {
-    const verified = await this._keystore.verify(
+    if (!Identity.isIdentity(identity)) {
+      return false
+    }
+
+    const knownID = this._knownIdentities.get(identity.signatures.id)
+    if (knownID) {
+      return identity.id === knownID.id &&
+             identity.publicKey === knownID.publicKey &&
+             identity.signatures.id === knownID.signatures.id &&
+             identity.signatures.publicKey === knownID.signatures.publicKey
+    }
+
+    const verifyIdSig = await Keystore.verify(
       identity.signatures.id,
       identity.publicKey,
       identity.id
     )
-    return verified && Identities.verifyIdentity(identity)
+    if (!verifyIdSig) return false
+
+    const IdentityProvider = getHandlerFor(identity.type)
+    const verified = await IdentityProvider.verifyIdentity(identity)
+    if (verified) {
+      this._knownIdentities.set(identity.signatures.id, Identity.toJSON(identity))
+    }
+
+    return verified
   }
 
   static async verifyIdentity (identity) {
+    if (!Identity.isIdentity(identity)) {
+      return false
+    }
+
+    const verifyIdSig = await Keystore.verify(
+      identity.signatures.id,
+      identity.publicKey,
+      identity.id
+    )
+
+    if (!verifyIdSig) return false
+
     const IdentityProvider = getHandlerFor(identity.type)
     return IdentityProvider.verifyIdentity(identity)
   }
@@ -88,7 +126,7 @@ class Identities {
         options.signingKeystore = options.keystore
       }
     }
-    options = Object.assign({}, { type }, options)
+    options = Object.assign({}, { type: defaultType }, options)
     const identities = new Identities(options)
     return identities.createIdentity(options)
   }

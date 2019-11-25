@@ -60,10 +60,28 @@ class Identity {
 
   toJSON () {
     return {
-      id: this._id,
-      publicKey: this._publicKey,
-      signatures: this._signatures,
-      type: this._type
+      id: this.id,
+      publicKey: this.publicKey,
+      signatures: this.signatures,
+      type: this.type
+    }
+  }
+
+  static isIdentity (identity) {
+    return identity.id !== undefined &&
+           identity.publicKey !== undefined &&
+           identity.signatures !== undefined &&
+           identity.signatures.id !== undefined &&
+           identity.signatures.publicKey !== undefined &&
+           identity.type !== undefined
+  }
+
+  static toJSON (identity) {
+    return {
+      id: identity.id,
+      publicKey: identity.publicKey,
+      signatures: identity.signatures,
+      type: identity.type
     }
   }
 }
