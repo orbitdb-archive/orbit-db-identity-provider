@@ -82,7 +82,7 @@ class Identities {
              identity.signatures.publicKey === knownID.signatures.publicKey
     }
 
-    const verifyIdSig = await Keystore.verify(
+    const verifyIdSig = await this.keystore.verify(
       identity.signatures.id,
       identity.publicKey,
       identity.id
