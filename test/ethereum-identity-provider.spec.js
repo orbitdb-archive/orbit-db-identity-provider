@@ -8,7 +8,7 @@ const Identities = require('../src/identities')
 const EthIdentityProvider = require('../src/ethereum-identity-provider')
 const Identity = require('../src/identity')
 const keypath = path.resolve('./test/keys')
-let keystore, store
+let keystore
 
 const type = EthIdentityProvider.type
 describe('Ethereum Identity Provider', function () {
