@@ -12,11 +12,6 @@ const signingKeysPath = path.resolve('./test/signingKeys')
 const identityKeysPath = path.resolve('./test/identityKeys')
 const migrate = require('localstorage-level-migration')
 const fs = require('fs-extra')
-
-const { defaultStorage } = require('orbit-db-test-utils')
-
-const storage = defaultStorage
-
 const type = 'orbitdb'
 
 describe('Identity Provider', function () {
@@ -58,10 +53,8 @@ describe('Identity Provider', function () {
     const id = 'B'; let identity; let keystore; let signingKeystore
 
     before(async () => {
-      const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
-      keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
+      keystore = new Keystore(identityKeysPath)
+      signingKeystore = new Keystore(signingKeysPath)
     })
 
     it('has the correct id', async () => {
@@ -116,10 +109,8 @@ describe('Identity Provider', function () {
     let keystore, signingKeystore
 
     before(async () => {
-      const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
-      keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
+      keystore = new Keystore(identityKeysPath)
+      signingKeystore = new Keystore(signingKeysPath)
     })
 
     let savedKeysKeystore, identity
@@ -131,8 +122,7 @@ describe('Identity Provider', function () {
 
     before(async () => {
       await fs.copy(fixturesPath, savedKeysPath)
-      const savedKeysStore = await storage.createStore(savedKeysPath)
-      savedKeysKeystore = new Keystore(savedKeysStore)
+      savedKeysKeystore = new Keystore(savedKeysPath)
       identity = await Identities.createIdentity({ id, keystore: savedKeysKeystore })
     })
 
@@ -181,10 +171,8 @@ describe('Identity Provider', function () {
     let identity, keystore, signingKeystore
 
     before(async () => {
-      const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
-      keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
+      keystore = new Keystore(identityKeysPath)
+      signingKeystore = new Keystore(signingKeysPath)
     })
 
     it('identity pkSignature verifies', async () => {
@@ -227,10 +215,8 @@ describe('Identity Provider', function () {
     let identity, keystore, signingKeystore
 
     before(async () => {
-      const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
-      keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
+      keystore = new Keystore(identityKeysPath)
+      signingKeystore = new Keystore(signingKeysPath)
     })
 
     it('identity verifies', async () => {
@@ -251,10 +237,8 @@ describe('Identity Provider', function () {
     let identity, keystore, signingKeystore
 
     before(async () => {
-      const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
-      keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
+      keystore = new Keystore(identityKeysPath)
+      signingKeystore = new Keystore(signingKeysPath)
       identity = await Identities.createIdentity({ id, keystore, signingKeystore })
     })
 
@@ -292,10 +276,8 @@ describe('Identity Provider', function () {
     let signature
 
     before(async () => {
-      const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
-      keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
+      keystore = new Keystore(identityKeysPath)
+      signingKeystore = new Keystore(signingKeysPath)
     })
 
     beforeEach(async () => {
@@ -325,10 +307,8 @@ describe('Identity Provider', function () {
     let identity, keystore, signingKeystore
 
     before(async () => {
-      const identityStore = await storage.createStore(identityKeysPath)
-      const signingStore = await storage.createStore(signingKeysPath)
-      keystore = new Keystore(identityStore)
-      signingKeystore = new Keystore(signingStore)
+      keystore = new Keystore(identityKeysPath)
+      signingKeystore = new Keystore(signingKeysPath)
       identity = await Identities.createIdentity({ id: 'A', migrate: migrate(source), keystore, signingKeystore })
     })
 

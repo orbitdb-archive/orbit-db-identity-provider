@@ -8,12 +8,6 @@ const Identities = require('../src/identities')
 const EthIdentityProvider = require('../src/ethereum-identity-provider')
 const Identity = require('../src/identity')
 const keypath = path.resolve('./test/keys')
-
-const implementations = require('orbit-db-test-utils/implementations')
-
-const properLevelModule = implementations.filter(i => i.key.indexOf('level') > -1).map(i => i.module)[0]
-const storage = require('orbit-db-storage-adapter')(properLevelModule)
-
 let keystore, store
 
 const type = EthIdentityProvider.type
@@ -21,8 +15,7 @@ describe('Ethereum Identity Provider', function () {
   before(async () => {
     rmrf.sync(keypath)
     Identities.addIdentityProvider(EthIdentityProvider)
-    store = await storage.createStore(keypath)
-    keystore = new Keystore(store)
+    keystore = new Keystore(keypath)
   })
 
   after(async () => {
