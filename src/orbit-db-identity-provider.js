@@ -22,7 +22,9 @@ class OrbitDBIdentityProvider extends IdentityProvider {
     }
 
     const keystore = this._keystore
-    const key = await keystore.getKey(id) || await keystore.createKey(id)
+    const key = await keystore.getKey(id) || await keystore.createKey(id, {
+      seed: options.seed
+    })
     return key.public.marshal().toString('hex')
   }
 
