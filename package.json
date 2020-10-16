@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test:node && npm run test:browser",
-    "test:node": "TEST=all mocha",
+    "test:node": "cross-env TEST=all mocha",
     "test:browser": "npm run build:tests && mocha-headless-chrome -f ./test/browser/index.html -a no-sandbox",
     "lint": "standard",
     "build": "npm run build:dist",
@@ -42,6 +42,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/runtime": "^7.5.5",
     "babel-loader": "^8.0.6",
+    "cross-env": "^7.0.2",
     "fs-extra": "^7.0.1",
     "is-node": "^1.0.2",
     "json-loader": "^0.5.7",
