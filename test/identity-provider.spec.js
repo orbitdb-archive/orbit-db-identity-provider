@@ -53,15 +53,15 @@ describe('Identity Provider', function () {
     let identity
 
     it('identityKeysPath only - has the correct id', async () => {
-      identity = await Identities.createIdentity({ id, identityKeysPath, seed: "jANfduGRj4HU9Pk6nJzujANfduGRj4HU9Pk6nJzu" })
+      identity = await Identities.createIdentity({ id, identityKeysPath, seed: 'jANfduGRj4HU9Pk6nJzujANfduGRj4HU9Pk6nJzu' })
       const key = await identity.provider.keystore.getKey(id)
       const externalId = key.public.marshal().toString('hex')
       assert.strictEqual(identity.id, externalId)
-      assert.strictEqual(identity.publicKey, "04b9747dc7399c8264e22e3ce723d2b7fcbecaa02e5eb83e0f91fc64a2d64bde26c7696ddc9f2fb73ea31756be9c43fb0afe7d75a062a2ec2e38314cf75d9f6ffe")
+      assert.strictEqual(identity.publicKey, '04b9747dc7399c8264e22e3ce723d2b7fcbecaa02e5eb83e0f91fc64a2d64bde26c7696ddc9f2fb73ea31756be9c43fb0afe7d75a062a2ec2e38314cf75d9f6ffe')
     })
 
     it('identityKeysPath and signingKeysPath - has a different id', async () => {
-      identity = await Identities.createIdentity({ id, identityKeysPath, signingKeysPath, seed: "jANfduGRj4HU9Pk6nJzujANfduGRj4HU9Pk6nJzu" })
+      identity = await Identities.createIdentity({ id, identityKeysPath, signingKeysPath, seed: 'jANfduGRj4HU9Pk6nJzujANfduGRj4HU9Pk6nJzu' })
       const key = await identity.provider.keystore.getKey(id)
       const externalId = key.public.marshal().toString('hex')
       assert.notStrictEqual(identity.id, externalId)

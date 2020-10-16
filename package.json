@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "ethers": "^5.0.8",
-    "orbit-db-keystore": "~0.3.5"
+    "orbit-db-keystore": "^0.4.0"
   },
   "localMaintainers": [
     "haad <haad@haja.io>",
