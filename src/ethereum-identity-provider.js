@@ -1,6 +1,6 @@
 'use strict'
 const IdentityProvider = require('./identity-provider-interface')
-const { Wallet, utils } = require('ethers')
+const { Wallet, verifyMessage } = require('@ethersproject/wallet')
 const type = 'ethereum'
 
 class EthIdentityProvider extends IdentityProvider {
@@ -30,7 +30,7 @@ class EthIdentityProvider extends IdentityProvider {
 
   static async verifyIdentity (identity) {
     // Verify that identity was signed by the id
-    const signerAddress = utils.verifyMessage(identity.publicKey + identity.signatures.id, identity.signatures.publicKey)
+    const signerAddress = verifyMessage(identity.publicKey + identity.signatures.id, identity.signatures.publicKey)
     return (signerAddress === identity.id)
   }
 
