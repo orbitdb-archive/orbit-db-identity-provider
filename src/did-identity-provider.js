@@ -31,7 +31,7 @@ class DIDIdentityProvider extends IdentityProvider {
     return `${jws.signatures[0].protected}..${jws.signatures[0].signature}`
   }
 
-  static setDIDResolver(resolver) {
+  static setDIDResolver (resolver) {
     if (!this.did) {
       this.did = new DID({ resolver })
     } else {
@@ -53,7 +53,7 @@ class DIDIdentityProvider extends IdentityProvider {
       return false
     }
     return true
-   }
+  }
 }
 
 module.exports = DIDIdentityProvider

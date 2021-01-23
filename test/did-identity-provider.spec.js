@@ -3,7 +3,6 @@
 const assert = require('assert')
 const path = require('path')
 const rmrf = require('rimraf')
-const u8a = require('uint8arrays')
 const { Ed25519Provider } = require('key-did-provider-ed25519')
 const { default: KeyResolver } = require('key-did-resolver')
 const Keystore = require('orbit-db-keystore')
@@ -13,7 +12,7 @@ const Identity = require('../src/identity')
 const keypath = path.resolve('./test/keys')
 let keystore
 
-const seed = new Uint8Array([ 157, 94, 116, 198, 19, 248, 93, 239, 173, 82, 245, 222, 199, 7, 183, 177, 123, 238, 83, 240, 143, 188, 87, 191, 33, 95, 58, 136, 46, 218, 219, 245 ])
+const seed = new Uint8Array([157, 94, 116, 198, 19, 248, 93, 239, 173, 82, 245, 222, 199, 7, 183, 177, 123, 238, 83, 240, 143, 188, 87, 191, 33, 95, 58, 136, 46, 218, 219, 245])
 const didStr = 'did:key:z6MkpnTJwrrVuphNh1uKb5DB7eRxvqniVaSDUHU6jtGVmn3r'
 
 const type = DIDIdentityProvider.type
@@ -32,7 +31,6 @@ describe('DID Identity Provider', function () {
 
   describe('create an DID identity', () => {
     let identity
-    let wallet
 
     before(async () => {
       const didProvider = new Ed25519Provider(seed)
@@ -65,7 +63,7 @@ describe('DID Identity Provider', function () {
     it('has a signature for the publicKey', async () => {
       const signingKey = await keystore.getKey(didStr)
       const idSignature = await keystore.sign(signingKey, didStr)
-      assert.notStrictEqual(identity.signatures.publicKey, undefined)
+      assert.notStrictEqual(idSignature, undefined)
     })
   })
 
