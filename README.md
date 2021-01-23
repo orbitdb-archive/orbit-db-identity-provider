@@ -61,6 +61,19 @@ To use an existing keystore, you can pass it as an argument in the options as fo
 const identity = await Identities.createIdentity({ id: 'local-id', keystore: existingKeystore })
 ```
 
+#### Creating an identity with a DID
+Decentralized Identifiers (DID) is a common way to represent a digital identity. Below is an example using the `did:key` method (specifically [key-did-provider-ed25519](https://github.com/ceramicnetwork/key-did-provider-ed25519)).
+```js
+const { Ed25519Provider } = require('key-did-provider-ed25519')
+const { default: KeyResolver } = require('key-did-resolver')
+const Identities = require('orbit-db-identity-provider')
+Identities.DIDIdentityProvider.setDIDResolver(KeyResolver.getResolver())
+
+const seed = // 32 bytes of entropy (Uint8Array)
+const didProvider = new Ed25519Provider(seed)
+const identity = await Identities.createIdentity({ type: 'DID', didProvider })
+```
+
 ### Create identity using existing keys
 
 To create an identity using existing keys, you need to install `localstorage-level-migration`
@@ -103,7 +116,6 @@ Identities.addIdentityProvider(MyIdentityProvider)
 const identity = await Identities.createIdentity({ type: `MyIdentityType`})
 
 ```
-
 
 ### Properties
 
