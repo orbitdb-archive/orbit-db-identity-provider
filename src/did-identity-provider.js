@@ -31,7 +31,7 @@ class DIDIdentityProvider extends IdentityProvider {
     return `${jws.signatures[0].protected}..${jws.signatures[0].signature}`
   }
 
-  static async setDidResolver(resolver) {
+  static setDIDResolver(resolver) {
     if (!this.did) {
       this.did = new DID({ resolver })
     } else {
@@ -41,7 +41,7 @@ class DIDIdentityProvider extends IdentityProvider {
 
   static async verifyIdentity (identity) {
     if (!this.did) {
-      throw new Error('The DID resolver must first be set with setDidResolver()')
+      throw new Error('The DID resolver must first be set with setDIDResolver()')
     }
     const data = identity.publicKey + identity.signatures.id
     try {

@@ -2,6 +2,8 @@
 const Identity = require('./identity')
 const IdentityProvider = require('./identity-provider-interface.js')
 const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
+const DIDIdentityProvider = require('./did-identity-provider')
+const EthIdentityProvider = require('./ethereum-identity-provider')
 const Keystore = require('orbit-db-keystore')
 
 const LRU = require('lru')
@@ -11,7 +13,9 @@ const defaultType = 'orbitdb'
 const identityKeysPath = path.join('./orbitdb', 'identity', 'identitykeys')
 
 const supportedTypes = {
-  orbitdb: OrbitDBIdentityProvider
+  orbitdb: OrbitDBIdentityProvider,
+  [DIDIdentityProvider.type]: DIDIdentityProvider,
+  [EthIdentityProvider.type]: EthIdentityProvider
 }
 
 const getHandlerFor = (type) => {
@@ -154,3 +158,5 @@ class Identities {
 }
 
 module.exports = Identities
+module.exports.DIDIdentityProvider = DIDIdentityProvider
+module.exports.EthIdentityProvider = EthIdentityProvider

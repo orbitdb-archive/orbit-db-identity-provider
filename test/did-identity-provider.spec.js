@@ -20,7 +20,7 @@ const type = DIDIdentityProvider.type
 describe('DID Identity Provider', function () {
   before(async () => {
     rmrf.sync(keypath)
-    DIDIdentityProvider.setDidResolver(KeyResolver.getResolver())
+    DIDIdentityProvider.setDIDResolver(KeyResolver.getResolver())
     Identities.addIdentityProvider(DIDIdentityProvider)
     keystore = new Keystore(keypath)
   })
