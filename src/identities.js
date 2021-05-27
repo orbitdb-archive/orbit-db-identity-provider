@@ -41,7 +41,7 @@ class Identities {
   async sign (identity, data) {
     const signingKey = await this.keystore.getKey(identity.id)
     if (!signingKey) {
-      throw new Error(`Private signing key not found from Keystore`)
+      throw new Error('Private signing key not found from Keystore')
     }
     const sig = await this.keystore.sign(signingKey, data)
     return sig
