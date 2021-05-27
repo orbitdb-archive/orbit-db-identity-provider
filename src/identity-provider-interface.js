@@ -12,7 +12,7 @@ class IdentityProvider {
 
   /* Return the type for this identity provider */
   static get type () {
-    throw new Error(`'static get type ()' needs to be defined in the inheriting class`)
+    throw new Error('\'static get type ()\' needs to be defined in the inheriting class')
   }
 
   /*

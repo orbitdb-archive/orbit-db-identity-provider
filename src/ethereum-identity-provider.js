@@ -23,7 +23,7 @@ class EthIdentityProvider extends IdentityProvider {
   // Returns a signature of pubkeysignature
   async signIdentity (data, options = {}) {
     const wallet = this.wallet
-    if (!wallet) { throw new Error(`wallet is required`) }
+    if (!wallet) { throw new Error('wallet is required') }
 
     return wallet.signMessage(data)
   }
@@ -37,16 +37,16 @@ class EthIdentityProvider extends IdentityProvider {
   async _createWallet (options = {}) {
     if (options.mnemonicOpts) {
       if (!options.mnemonicOpts.mnemonic) {
-        throw new Error(`mnemonic is required`)
+        throw new Error('mnemonic is required')
       }
       return Wallet.fromMnemonic(options.mnemonicOpts.mnemonic, options.mnemonicOpts.path, options.mnemonicOpts.wordlist)
     }
     if (options.encryptedJsonOpts) {
       if (!options.encryptedJsonOpts.json) {
-        throw new Error(`encrypted json is required`)
+        throw new Error('encrypted json is required')
       }
       if (!options.encryptedJsonOpts.password) {
-        throw new Error(`password for encrypted json is required`)
+        throw new Error('password for encrypted json is required')
       }
       return Wallet.fromEncryptedJson(options.encryptedJsonOpts.json, options.encryptedJsonOpts.password, options.encryptedJsonOpts.progressCallback)
     }

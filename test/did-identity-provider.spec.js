@@ -114,7 +114,7 @@ describe('DID Identity Provider', function () {
         err = e.toString()
       }
       assert.strictEqual(signature, undefined)
-      assert.strictEqual(err, `Error: Private signing key not found from Keystore`)
+      assert.strictEqual(err, 'Error: Private signing key not found from Keystore')
     })
 
     describe('verify data signed by an identity', () => {
