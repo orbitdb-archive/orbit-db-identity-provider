@@ -10,25 +10,24 @@ module.exports = {
     filename: 'index-browser.min.js'
   },
   target: 'web',
-  devtool: 'sourcemap',
-  node: {
-    fs: 'empty',
-    console: false,
-    Buffer: true
-  },
+  devtool: 'source-map',
   plugins: [
   ],
   resolve: {
     modules: [
       'node_modules',
       path.resolve(__dirname, '../node_modules')
-    ]
+    ],
+    fallback: {
+      assert: require.resolve('assert'),
+      path: require.resolve('path-browserify'),
+      stream: require.resolve('stream-browserify')
+    }
   },
   resolveLoader: {
     modules: [
       'node_modules',
       path.resolve(__dirname, '../node_modules')
-    ],
-    moduleExtensions: ['-loader']
+    ]
   }
 }

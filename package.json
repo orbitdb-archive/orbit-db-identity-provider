@@ -9,7 +9,7 @@
     "test:browser": "npm run build:tests && mocha-headless-chrome -f ./test/browser/index.html -a no-sandbox",
     "lint": "standard",
     "build": "npm run build:dist",
-    "build:dist": "webpack --config ./conf/webpack.config.js --display-modules --sort-modules-by size --mode=production",
+    "build:dist": "webpack --config ./conf/webpack.config.js --mode=production",
     "build:tests": "webpack --config ./conf/webpack.tests.config.js --mode development"
   },
   "repository": {
@@ -62,8 +62,11 @@
   },
   "dependencies": {
     "@ethersproject/wallet": "^5.0.10",
+    "assert": "^2.0.0",
     "dids": "^2.1.0",
-    "orbit-db-keystore": "~0.3.5"
+    "orbit-db-keystore": "~0.3.5",
+    "path-browserify": "^1.0.1",
+    "stream-browserify": "^3.0.0"
   },
   "localMaintainers": [
     "haad <haad@haja.io>",
