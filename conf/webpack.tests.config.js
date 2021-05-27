@@ -12,9 +12,6 @@ module.exports = {
   },
   target: 'web',
   devtool: 'source-map',
-  node: {
-    child_process: 'empty'
-  },
   plugins: [
     new webpack.DefinePlugin({
       'process.env': {
@@ -40,14 +37,18 @@ module.exports = {
     modules: [
       'node_modules',
       path.resolve(__dirname, '../node_modules')
-    ]
+    ],
+    fallback: {
+      assert: require.resolve('assert'),
+      path: require.resolve('path-browserify'),
+      stream: require.resolve('stream-browserify')
+    }
   },
   resolveLoader: {
     modules: [
       'node_modules',
       path.resolve(__dirname, '../node_modules')
-    ],
-    moduleExtensions: ['-loader']
+    ]
   },
   module: {
     rules: [
