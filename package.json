@@ -42,7 +42,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/runtime": "^7.5.5",
     "babel-loader": "^8.0.6",
-    "fs-extra": "^7.0.1",
+    "fs-extra": "^10.0.0",
     "is-node": "^1.0.2",
     "json-loader": "^0.5.7",
     "key-did-provider-ed25519": "^1.0.0",
