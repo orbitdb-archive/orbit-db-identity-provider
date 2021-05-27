@@ -32,14 +32,14 @@ describe('Identity Provider', function () {
     it('identityKeysPath only - has the correct id', async () => {
       identity = await Identities.createIdentity({ id, identityKeysPath })
       const key = await identity.provider.keystore.getKey(id)
-      const externalId = key.public.marshal().toString('hex')
+      const externalId = Buffer.from(key.public.marshal()).toString('hex')
       assert.strictEqual(identity.id, externalId)
     })
 
     it('identityKeysPath and signingKeysPath - has a different id', async () => {
       identity = await Identities.createIdentity({ id, identityKeysPath, signingKeysPath })
       const key = await identity.provider.keystore.getKey(id)
-      const externalId = key.public.marshal().toString('hex')
+      const externalId = Buffer.from(key.public.marshal()).toString('hex')
       assert.notStrictEqual(identity.id, externalId)
     })
 
@@ -61,7 +61,7 @@ describe('Identity Provider', function () {
       identity = await Identities.createIdentity({ id, keystore })
       keystore = identity.provider._keystore
       const key = await keystore.getKey(id)
-      const externalId = key.public.marshal().toString('hex')
+      const externalId = Buffer.from(key.public.marshal()).toString('hex')
       assert.strictEqual(identity.id, externalId)
     })
 
@@ -72,7 +72,7 @@ describe('Identity Provider', function () {
 
     it('has the correct public key', async () => {
       const key = await keystore.getKey(id)
-      const externalId = key.public.marshal().toString('hex')
+      const externalId = Buffer.from(key.public.marshal()).toString('hex')
       const signingKey = await keystore.getKey(externalId)
       assert.notStrictEqual(signingKey, undefined)
       assert.strictEqual(identity.publicKey, keystore.getPublic(signingKey))
@@ -80,10 +80,10 @@ describe('Identity Provider', function () {
 
     it('has a signature for the id', async () => {
       const key = await keystore.getKey(id)
-      const externalId = key.public.marshal().toString('hex')
+      const externalId = Buffer.from(key.public.marshal()).toString('hex')
       const signingKey = await keystore.getKey(externalId)
       const idSignature = await keystore.sign(signingKey, externalId)
-      const publicKey = signingKey.public.marshal().toString('hex')
+      const publicKey = Buffer.from(signingKey.public.marshal()).toString('hex')
       const verifies = await Keystore.verify(idSignature, publicKey, externalId)
       assert.strictEqual(verifies, true)
       assert.strictEqual(identity.signatures.id, idSignature)
@@ -91,7 +91,7 @@ describe('Identity Provider', function () {
 
     it('has a signature for the publicKey', async () => {
       const key = await keystore.getKey(id)
-      const externalId = key.public.marshal().toString('hex')
+      const externalId = Buffer.from(key.public.marshal()).toString('hex')
       const signingKey = await keystore.getKey(externalId)
       const idSignature = await keystore.sign(signingKey, externalId)
       const externalKey = await keystore.getKey(id)
@@ -132,7 +132,7 @@ describe('Identity Provider', function () {
 
     it('has the correct id', async () => {
       const key = await savedKeysKeystore.getKey(id)
-      assert.strictEqual(identity.id, key.public.marshal().toString('hex'))
+      assert.strictEqual(identity.id, Buffer.from(key.public.marshal()).toString('hex'))
     })
 
     it('has the correct public key', async () => {
