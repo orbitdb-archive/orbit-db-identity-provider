@@ -50,7 +50,7 @@
     "localstorage-level-migration": "~0.1.0",
     "mocha": "^8.4.0",
     "mocha-headless-chrome": "^2.0.3",
-    "rimraf": "^2.6.2",
+    "rimraf": "^3.0.2",
     "standard": "^16.0.3",
     "webpack": "^4.29.1",
     "webpack-cli": "^3.2.2"
