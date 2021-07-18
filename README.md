@@ -74,6 +74,21 @@ const didProvider = new Ed25519Provider(seed)
 const identity = await Identities.createIdentity({ type: 'DID', didProvider })
 ```
 
+#### Creating an identity with an Ethereum wallet
+Identities can also be created using Ethereum wallets. The example below uses [ethers](https://docs.ethers.io/) to open a users wallet and sign the identity.
+```js
+import Identities from "orbit-db-identity-provider";
+import { ethers } from "ethers";
+
+const provider = new ethers.providers.Web3Provider(/* window.ethereum */);
+const wallet = provider.getSigner();
+const identity = await Identities.createIdentity({
+  type: "ethereum",
+  wallet,
+});
+```
+_Note: If you don't supply a `wallet`, a random one will be created for you._
+
 ### Create identity using existing keys
 
 To create an identity using existing keys, you need to install `localstorage-level-migration`
