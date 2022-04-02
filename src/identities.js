@@ -55,7 +55,7 @@ class Identities {
     const keystore = options.keystore || this.keystore
     const type = options.type || defaultType
     const identityProvider = type === defaultType ? new OrbitDBIdentityProvider(options.signingKeystore || keystore) : new (getHandlerFor(type))(options)
-    const id = await identityProvider.getId(options)
+    const id = options.id || await identityProvider.getId(options)
 
     if (options.migrate) {
       await options.migrate({ targetStore: keystore._store, targetId: id })
