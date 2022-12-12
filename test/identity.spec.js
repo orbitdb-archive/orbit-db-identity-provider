@@ -1,7 +1,5 @@
-'use strict'
-
-const assert = require('assert')
-const Identity = require('../src/identity')
+import assert from 'assert'
+import Identity from '../src/identity.js'
 
 describe('Identity', function () {
   const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'

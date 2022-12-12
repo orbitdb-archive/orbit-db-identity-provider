@@ -2,7 +2,8 @@
   "name": "orbit-db-identity-provider",
   "version": "0.4.0",
   "description": "Default identity provider for OrbitDB",
-  "main": "index.js",
+  "main": "src/identities.js",
+  "type": "module",
   "scripts": {
     "test": "npm run test:node && npm run test:browser",
     "test:node": "TEST=all mocha",
@@ -10,7 +11,7 @@
     "lint": "standard",
     "build": "npm run build:dist",
     "build:dist": "webpack --config ./conf/webpack.config.js --mode=production",
-    "build:tests": "webpack --config ./conf/webpack.tests.config.js --mode development"
+    "build:tests": "webpack --config ./conf/webpack.tests.config.js --mode production"
   },
   "repository": {
     "type": "git",
@@ -36,20 +37,18 @@
   "homepage": "https://github.com/orbitdb/orbit-db-identity-provider#readme",
   "devDependencies": {
     "@babel/core": "^7.5.5",
-    "@babel/plugin-syntax-object-rest-spread": "^7.2.0",
-    "@babel/plugin-transform-modules-commonjs": "^7.5.0",
-    "@babel/plugin-transform-runtime": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-env": "^7.20.2",
     "@babel/runtime": "^7.5.5",
     "babel-loader": "^8.0.6",
     "fs-extra": "^10.0.0",
     "is-node": "^1.0.2",
     "json-loader": "^0.5.7",
     "key-did-provider-ed25519": "^1.0.0",
-    "key-did-resolver": "^1.2.1",
+    "key-did-resolver": "^2.3.0",
     "localstorage-level-migration": "~0.1.0",
     "mocha": "^8.4.0",
     "mocha-headless-chrome": "^3.1.0",
+    "orbit-db-keystore": "file:../orbit-db-keystore",
     "process": "^0.11.10",
     "rimraf": "^3.0.2",
     "standard": "^16.0.3",
@@ -65,7 +64,7 @@
     "@ethersproject/wallet": "^5.0.10",
     "assert": "^2.0.0",
     "dids": "^2.1.0",
-    "orbit-db-keystore": "^1.0.0",
+    "lru": "^3.1.0",
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0"
   },

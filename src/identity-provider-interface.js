@@ -1,5 +1,3 @@
-'use strict'
-
 class IdentityProvider {
   /* Return id of identity (to be signed by orbit-db public key) */
   async getId (options) {}
@@ -25,4 +23,4 @@ class IdentityProvider {
   }
 }
 
-module.exports = IdentityProvider
+export default IdentityProvider

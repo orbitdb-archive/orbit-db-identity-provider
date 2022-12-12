@@ -1,7 +1,6 @@
-'use strict'
-const IdentityProvider = require('./identity-provider-interface')
-const u8a = require('uint8arrays')
-const { DID } = require('dids')
+import IdentityProvider from './identity-provider-interface.js'
+import u8a from 'uint8arrays'
+import { DID } from 'dids'
 
 const TYPE = 'DID'
 
@@ -56,4 +55,4 @@ class DIDIdentityProvider extends IdentityProvider {
   }
 }
 
-module.exports = DIDIdentityProvider
+export default DIDIdentityProvider
