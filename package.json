@@ -9,6 +9,7 @@
     "test:node": "TEST=all mocha",
     "test:browser": "npm run build:tests && mocha-headless-chrome -f ./test/browser/index.html -a no-sandbox",
     "lint": "standard",
+    "lint:fix": "standard --fix",
     "build": "npm run build:dist",
     "build:dist": "webpack --config ./conf/webpack.config.js --mode=production",
     "build:tests": "webpack --config ./conf/webpack.tests.config.js --mode production"
@@ -45,7 +46,9 @@
     "json-loader": "^0.5.7",
     "key-did-provider-ed25519": "^1.0.0",
     "key-did-resolver": "^2.3.0",
-    "localstorage-level-migration": "~0.1.0",
+    "level-js": "^6.1.0",
+    "levelup": "^5.1.1",
+    "localstorage-level-migration": "file:../localstorage-level-migration",
     "mocha": "^8.4.0",
     "mocha-headless-chrome": "^3.1.0",
     "orbit-db-keystore": "file:../orbit-db-keystore",

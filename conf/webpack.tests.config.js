@@ -40,14 +40,12 @@ export default (env, argv) => {
         'node_modules'
       ],
       fallback: {
+        buffer: require.resolve('buffer/'),
+        events: require.resolve('events/'),
         assert: require.resolve('assert'),
         path: require.resolve('path-browserify'),
         stream: require.resolve('stream-browserify')
       }
-    },
-    externals: {
-      'fs-extra': '{ copy: () => {} }',
-      rimraf: '{ sync: () => {} }'
     },
     module: {
       rules: [

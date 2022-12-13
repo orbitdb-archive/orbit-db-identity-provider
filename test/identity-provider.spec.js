@@ -115,10 +115,10 @@ describe('Identity Provider', function () {
     const expectedIdSignature = '30450221009de7b91952d73f577e85962aa6301350865212e3956862f80f4ebb626ffc126b022027d57415fb145b7e06cf06320fbfa63ea98a958b065726fe86eaab809a6bf607'
     const expectedPkIdSignature = '304402202806e7c2406ca1f35961d38adc3997c179e142d54e1ca838ace373fae27124fd02200d6ca3aea6e1341bf5e4e0b84b559bbeefecfade34115de266a69d04d924905e'
 
-    before(async () => {    
+    before(async () => {
       keystore = new Keystore(identityKeysPath)
       await keystore.open()
-      signingKeystore = new Keystore(signingKeysPath)      
+      signingKeystore = new Keystore(signingKeysPath)
       await signingKeystore.open()
 
       await fs.copy(fixturesPath, savedKeysPath)
