@@ -1,4 +1,4 @@
-import IdentityProvider from './identity-provider-interface.js'
+import IdentityProvider from './interface.js'
 import Keystore from 'orbit-db-keystore'
 const type = 'orbitdb'
 

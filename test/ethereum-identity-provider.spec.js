@@ -2,7 +2,8 @@ import assert from 'assert'
 import path from 'path'
 import rmrf from 'rimraf'
 import Keystore from 'orbit-db-keystore'
-import Identities, { EthIdentityProvider } from '../src/identities.js'
+import Identities from '../src/identities.js'
+import EthIdentityProvider from '../src/identity-providers/ethereum.js'
 import Identity from '../src/identity.js'
 
 const keypath = path.resolve('./test/keys')

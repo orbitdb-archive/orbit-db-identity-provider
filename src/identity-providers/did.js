@@ -1,4 +1,4 @@
-import IdentityProvider from './identity-provider-interface.js'
+import IdentityProvider from './interface.js'
 import u8a from 'uint8arrays'
 import { DID } from 'dids'
 

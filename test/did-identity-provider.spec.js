@@ -5,7 +5,7 @@ import { Ed25519Provider } from 'key-did-provider-ed25519'
 import KeyDidResolver from 'key-did-resolver'
 import Keystore from 'orbit-db-keystore'
 import Identities from '../src/identities.js'
-import DIDIdentityProvider from '../src/did-identity-provider.js'
+import DIDIdentityProvider from '../src/identity-providers/did.js'
 import Identity from '../src/identity.js'
 const keypath = path.resolve('./test/keys')
 let keystore

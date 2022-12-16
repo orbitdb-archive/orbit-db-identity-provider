@@ -1,8 +1,8 @@
 import Identity from './identity.js'
-import IdentityProvider from './identity-provider-interface.js'
-import OrbitDBIdentityProvider from './orbit-db-identity-provider.js'
-import DIDIdentityProvider from './did-identity-provider.js'
-import EthIdentityProvider from './ethereum-identity-provider.js'
+import IdentityProvider from './identity-providers/interface.js'
+import OrbitDBIdentityProvider from './identity-providers/orbitdb.js'
+import DIDIdentityProvider from './identity-providers/did.js'
+import EthIdentityProvider from './identity-providers/ethereum.js'
 import Keystore from 'orbit-db-keystore'
 import LRU from 'lru'
 import path from 'path'
@@ -158,8 +158,3 @@ class Identities {
 }
 
 export default Identities
-
-export {
-  DIDIdentityProvider,
-  EthIdentityProvider
-}

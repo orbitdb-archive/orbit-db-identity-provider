@@ -1,4 +1,4 @@
-import IdentityProvider from './identity-provider-interface.js'
+import IdentityProvider from './interface.js'
 import { Wallet, verifyMessage } from '@ethersproject/wallet'
 const type = 'ethereum'
 

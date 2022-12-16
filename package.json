@@ -4,6 +4,13 @@
   "description": "Default identity provider for OrbitDB",
   "main": "src/identities.js",
   "type": "module",
+  "exports": {
+    ".": "./src/identities.js",
+    "./did": "./src/identity-providers/did.js",
+    "./ethereum": "./src/identity-providers/ethereum.js",
+    "./interface": "./src/identity-providers/interface.js",
+    "./orbitdb": "./src/identity-providers/orbitdb.js"
+  },
   "scripts": {
     "test": "npm run test:node && npm run test:browser",
     "test:node": "TEST=all mocha",
