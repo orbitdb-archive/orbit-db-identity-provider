@@ -1,5 +1,5 @@
 import IdentityProvider from './interface.js'
-import u8a from 'uint8arrays'
+import * as u8a from 'uint8arrays'
 import { DID } from 'dids'
 
 const TYPE = 'DID'
