@@ -1,6 +1,5 @@
-'use strict'
-const IdentityProvider = require('./identity-provider-interface')
-const { Wallet, verifyMessage } = require('@ethersproject/wallet')
+import IdentityProvider from './interface.js'
+import { Wallet, verifyMessage } from '@ethersproject/wallet'
 const type = 'ethereum'
 
 class EthIdentityProvider extends IdentityProvider {
@@ -54,4 +53,4 @@ class EthIdentityProvider extends IdentityProvider {
   }
 }
 
-module.exports = EthIdentityProvider
+export default EthIdentityProvider

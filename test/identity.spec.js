@@ -1,7 +1,5 @@
-'use strict'
-
-const assert = require('assert')
-const Identity = require('../src/identity')
+import assert from 'assert'
+import Identity from '../src/identity.js'
 
 describe('Identity', function () {
   const id = '0x01234567890abcdefghijklmnopqrstuvwxyz'
@@ -39,10 +37,10 @@ describe('Identity', function () {
 
   it('converts identity to a JSON object', async () => {
     const expected = {
-      id: id,
-      publicKey: publicKey,
+      id,
+      publicKey,
       signatures: { id: idSignature, publicKey: publicKeyAndIdSignature },
-      type: type
+      type
     }
     assert.deepStrictEqual(identity.toJSON(), expected)
   })

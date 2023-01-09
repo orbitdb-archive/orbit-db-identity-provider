@@ -37,7 +37,7 @@ The `Identity` object contains signatures proving possession of some external id
 
 ### Creating an identity
 ```js
-const Identities = require('orbit-db-identity-provider')
+import Identities from 'orbit-db-identity-provider'
 const options = { id: 'local-id'}
 const identity = await Identities.createIdentity(options)
 
@@ -64,9 +64,9 @@ const identity = await Identities.createIdentity({ id: 'local-id', keystore: exi
 #### Creating an identity with a DID
 Decentralized Identifiers (DID) is a common way to represent a digital identity. Below is an example using the `did:key` method (specifically [key-did-provider-ed25519](https://github.com/ceramicnetwork/key-did-provider-ed25519)).
 ```js
-const { Ed25519Provider } = require('key-did-provider-ed25519')
-const { default: KeyResolver } = require('key-did-resolver')
-const Identities = require('orbit-db-identity-provider')
+import { Ed25519Provider } from 'key-did-provider-ed25519'
+import KeyResolver from 'key-did-resolver'
+import Identities from 'orbit-db-identity-provider'
 Identities.DIDIdentityProvider.setDIDResolver(KeyResolver.getResolver())
 
 const seed = // 32 bytes of entropy (Uint8Array)
@@ -94,8 +94,8 @@ _Note: If you don't supply a `wallet`, a random one will be created for you._
 To create an identity using existing keys, you need to install `localstorage-level-migration`
 
 ```js
-const Identities = require('orbit-db-identity-provider')
-const migrate = require('localstorage-level-migration')
+import Identities from 'orbit-db-identity-provider'
+import migrate from 'localstorage-level-migration'
 const options = { id: 'new-id', migrate: migrate('/path/to/keys') }
 const identity = await Identities.createIdentity(options)
 

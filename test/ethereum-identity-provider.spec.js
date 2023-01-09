@@ -1,12 +1,11 @@
-'use strict'
+import assert from 'assert'
+import path from 'path'
+import rmrf from 'rimraf'
+import Keystore from 'orbit-db-keystore'
+import Identities from '../src/identities.js'
+import EthIdentityProvider from '../src/identity-providers/ethereum.js'
+import Identity from '../src/identity.js'
 
-const assert = require('assert')
-const path = require('path')
-const rmrf = require('rimraf')
-const Keystore = require('orbit-db-keystore')
-const Identities = require('../src/identities')
-const EthIdentityProvider = require('../src/ethereum-identity-provider')
-const Identity = require('../src/identity')
 const keypath = path.resolve('./test/keys')
 let keystore
 
@@ -16,6 +15,7 @@ describe('Ethereum Identity Provider', function () {
     rmrf.sync(keypath)
     Identities.addIdentityProvider(EthIdentityProvider)
     keystore = new Keystore(keypath)
+    await keystore.open()
   })
 
   after(async () => {

@@ -1,13 +1,11 @@
-'use strict'
-const Identity = require('./identity')
-const IdentityProvider = require('./identity-provider-interface.js')
-const OrbitDBIdentityProvider = require('./orbit-db-identity-provider')
-const DIDIdentityProvider = require('./did-identity-provider')
-const EthIdentityProvider = require('./ethereum-identity-provider')
-const Keystore = require('orbit-db-keystore')
-
-const LRU = require('lru')
-const path = require('path')
+import Identity from './identity.js'
+import IdentityProvider from './identity-providers/interface.js'
+import OrbitDBIdentityProvider from './identity-providers/orbitdb.js'
+import DIDIdentityProvider from './identity-providers/did.js'
+import EthIdentityProvider from './identity-providers/ethereum.js'
+import Keystore from 'orbit-db-keystore'
+import LRU from 'lru'
+import path from 'path'
 
 const defaultType = 'orbitdb'
 const identityKeysPath = path.join('./orbitdb', 'identity', 'identitykeys')
@@ -130,6 +128,8 @@ class Identities {
         options.signingKeystore = options.keystore
       }
     }
+    await options.keystore.open()
+    await options.signingKeystore.open()
     options = Object.assign({}, { type: defaultType }, options)
     const identities = new Identities(options)
     return identities.createIdentity(options)
@@ -146,7 +146,7 @@ class Identities {
 
     if (!IdentityProvider.type ||
       typeof IdentityProvider.type !== 'string') {
-      throw new Error('Given IdentityProvider class needs to implement: static get type() { /* return a string */}.')
+      throw new Error('Given IdentityProvider class needs to implement: static get type() { /* return a string */ }.')
     }
 
     supportedTypes[IdentityProvider.type] = IdentityProvider
@@ -157,6 +157,4 @@ class Identities {
   }
 }
 
-module.exports = Identities
-module.exports.DIDIdentityProvider = DIDIdentityProvider
-module.exports.EthIdentityProvider = EthIdentityProvider
+export default Identities

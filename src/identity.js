@@ -1,5 +1,4 @@
-'use strict'
-const isDefined = require('./is-defined')
+import isDefined from './is-defined.js'
 
 class Identity {
   constructor (id, publicKey, idSignature, pubKeyIdSignature, type, provider) {
@@ -86,4 +85,4 @@ class Identity {
   }
 }
 
-module.exports = Identity
+export default Identity

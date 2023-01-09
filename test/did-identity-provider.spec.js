@@ -1,14 +1,12 @@
-'use strict'
-
-const assert = require('assert')
-const path = require('path')
-const rmrf = require('rimraf')
-const { Ed25519Provider } = require('key-did-provider-ed25519')
-const { default: KeyResolver } = require('key-did-resolver')
-const Keystore = require('orbit-db-keystore')
-const Identities = require('../src/identities')
-const DIDIdentityProvider = require('../src/did-identity-provider')
-const Identity = require('../src/identity')
+import assert from 'assert'
+import path from 'path'
+import rmrf from 'rimraf'
+import { Ed25519Provider } from 'key-did-provider-ed25519'
+import KeyDidResolver from 'key-did-resolver'
+import Keystore from 'orbit-db-keystore'
+import Identities from '../src/identities.js'
+import DIDIdentityProvider from '../src/identity-providers/did.js'
+import Identity from '../src/identity.js'
 const keypath = path.resolve('./test/keys')
 let keystore
 
@@ -19,9 +17,10 @@ const type = DIDIdentityProvider.type
 describe('DID Identity Provider', function () {
   before(async () => {
     rmrf.sync(keypath)
-    DIDIdentityProvider.setDIDResolver(KeyResolver.getResolver())
+    DIDIdentityProvider.setDIDResolver(KeyDidResolver.getResolver())
     Identities.addIdentityProvider(DIDIdentityProvider)
     keystore = new Keystore(keypath)
+    await keystore.open()
   })
 
   after(async () => {

@@ -1,17 +1,15 @@
-'use strict'
-
-const assert = require('assert')
-const path = require('path')
-const rmrf = require('rimraf')
-const Keystore = require('orbit-db-keystore')
-const Identities = require('../src/identities')
-const Identity = require('../src/identity')
+import assert from 'assert'
+import path from 'path'
+import rmrf from 'rimraf'
+import Keystore from 'orbit-db-keystore'
+import Identities from '../src/identities.js'
+import Identity from '../src/identity.js'
+import migrate from 'localstorage-level-migration'
+import fs from 'fs-extra'
 const fixturesPath = path.resolve('./test/fixtures/keys')
 const savedKeysPath = path.resolve('./test/fixtures/savedKeys')
 const signingKeysPath = path.resolve('./test/signingKeys')
 const identityKeysPath = path.resolve('./test/identityKeys')
-const migrate = require('localstorage-level-migration')
-const fs = require('fs-extra')
 const type = 'orbitdb'
 
 describe('Identity Provider', function () {
@@ -54,7 +52,9 @@ describe('Identity Provider', function () {
 
     before(async () => {
       keystore = new Keystore(identityKeysPath)
+      await keystore.open()
       signingKeystore = new Keystore(signingKeysPath)
+      await signingKeystore.open()
     })
 
     it('has the correct id', async () => {
@@ -108,11 +108,6 @@ describe('Identity Provider', function () {
   describe('create an identity with saved keys', () => {
     let keystore, signingKeystore
 
-    before(async () => {
-      keystore = new Keystore(identityKeysPath)
-      signingKeystore = new Keystore(signingKeysPath)
-    })
-
     let savedKeysKeystore, identity
     const id = 'QmPhnEjVkYE1Ym7F5MkRUfkD6NtuSptE7ugu1Ggr149W2X'
 
@@ -121,8 +116,14 @@ describe('Identity Provider', function () {
     const expectedPkIdSignature = '304402202806e7c2406ca1f35961d38adc3997c179e142d54e1ca838ace373fae27124fd02200d6ca3aea6e1341bf5e4e0b84b559bbeefecfade34115de266a69d04d924905e'
 
     before(async () => {
+      keystore = new Keystore(identityKeysPath)
+      await keystore.open()
+      signingKeystore = new Keystore(signingKeysPath)
+      await signingKeystore.open()
+
       await fs.copy(fixturesPath, savedKeysPath)
       savedKeysKeystore = new Keystore(savedKeysPath)
+      await savedKeysKeystore.open()
       identity = await Identities.createIdentity({ id, keystore: savedKeysKeystore })
     })
 
@@ -172,7 +173,9 @@ describe('Identity Provider', function () {
 
     before(async () => {
       keystore = new Keystore(identityKeysPath)
+      await keystore.open()
       signingKeystore = new Keystore(signingKeysPath)
+      await signingKeystore.open()
     })
 
     it('identity pkSignature verifies', async () => {
@@ -216,7 +219,9 @@ describe('Identity Provider', function () {
 
     before(async () => {
       keystore = new Keystore(identityKeysPath)
+      await keystore.open()
       signingKeystore = new Keystore(signingKeysPath)
+      await signingKeystore.open()
     })
 
     it('identity verifies', async () => {
@@ -238,7 +243,9 @@ describe('Identity Provider', function () {
 
     before(async () => {
       keystore = new Keystore(identityKeysPath)
+      await keystore.open()
       signingKeystore = new Keystore(signingKeysPath)
+      await signingKeystore.open()
       identity = await Identities.createIdentity({ id, keystore, signingKeystore })
     })
 
@@ -277,7 +284,9 @@ describe('Identity Provider', function () {
 
     before(async () => {
       keystore = new Keystore(identityKeysPath)
+      await keystore.open()
       signingKeystore = new Keystore(signingKeysPath)
+      await signingKeystore.open()
     })
 
     beforeEach(async () => {
@@ -302,13 +311,15 @@ describe('Identity Provider', function () {
   })
 
   describe('create identity from existing keys', () => {
-    const source = fixturesPath + '/existing'
+    const source = fixturesPath + '/existing.json'
     const publicKey = '045756c20f03ec494d07e8dd8456f67d6bd97ca175e6c4882435fe364392f131406db3a37eebe1d634b105a57b55e4f17247c1ec8ffe04d6a95d1e0ee8bed7cfbd'
     let identity, keystore, signingKeystore
 
     before(async () => {
       keystore = new Keystore(identityKeysPath)
+      await keystore.open()
       signingKeystore = new Keystore(signingKeysPath)
+      await signingKeystore.open()
       identity = await Identities.createIdentity({ id: 'A', migrate: migrate(source), keystore, signingKeystore })
     })
 
