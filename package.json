@@ -58,7 +58,6 @@
     "localstorage-level-migration": "^0.0.2",
     "mocha": "^8.4.0",
     "mocha-headless-chrome": "^3.1.0",
-    "orbit-db-keystore": "^1.0.1-ae215fb.0",
     "process": "^0.11.10",
     "rimraf": "^3.0.2",
     "standard": "^17.0.0",
@@ -75,6 +74,7 @@
     "assert": "^2.0.0",
     "dids": "^3.4.0",
     "lru": "^3.1.0",
+    "orbit-db-keystore": "^1.0.1-ae215fb.0",
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0",
     "uint8arrays": "^4.0.2"
