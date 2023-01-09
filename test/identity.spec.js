@@ -37,10 +37,10 @@ describe('Identity', function () {
 
   it('converts identity to a JSON object', async () => {
     const expected = {
-      id: id,
-      publicKey: publicKey,
+      id,
+      publicKey,
       signatures: { id: idSignature, publicKey: publicKeyAndIdSignature },
-      type: type
+      type
     }
     assert.deepStrictEqual(identity.toJSON(), expected)
   })
