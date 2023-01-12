@@ -26,6 +26,7 @@ export default (env, argv) => {
         'process.env.NODE_ENV': JSON.stringify('production')
       }),
       new webpack.ProvidePlugin({
+        process: 'process/browser',
         Buffer: ['buffer', 'Buffer']
       })
     ],

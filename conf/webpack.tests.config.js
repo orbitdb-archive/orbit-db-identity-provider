@@ -29,8 +29,6 @@ export default (env, argv) => {
       'graceful-fs': '{}',
       'fs-extra': '{ copy: () => {} }',
       'fs.realpath': '{}'
-      // dns: '{}',
-      // "node-gyp-build": '{}'
     },
     experiments: {
       topLevelAwait: true

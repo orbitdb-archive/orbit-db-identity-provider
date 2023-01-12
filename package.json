@@ -18,8 +18,8 @@
     "lint": "standard",
     "lint:fix": "standard --fix",
     "build": "npm run build:dist",
-    "build:dist": "webpack --config ./conf/webpack.config.js --mode=production",
-    "build:tests": "webpack --config ./conf/webpack.tests.config.js --mode production"
+    "build:dist": "webpack --config ./conf/webpack.config.js",
+    "build:tests": "webpack --config ./conf/webpack.tests.config.js"
   },
   "repository": {
     "type": "git",
