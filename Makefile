@@ -17,7 +17,7 @@ clean:
 	rm -rf node_modules/
 
 clean-dependencies: clean
-	rm -f package-lock.json;
+	rm -f package-lock.json
 
 rebuild: | clean-dependencies build
 
