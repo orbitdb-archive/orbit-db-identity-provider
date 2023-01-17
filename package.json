@@ -74,7 +74,7 @@
     "assert": "^2.0.0",
     "dids": "^3.4.0",
     "lru": "^3.1.0",
-    "orbit-db-keystore": "github:orbitdb/orbit-db-keystore#dev/simplify-level",
+    "orbit-db-keystore": "next",
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0",
     "uint8arrays": "^4.0.3"
