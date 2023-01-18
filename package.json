@@ -1,6 +1,6 @@
 {
   "name": "orbit-db-identity-provider",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Default identity provider for OrbitDB",
   "main": "src/identities.js",
   "type": "module",
@@ -55,7 +55,7 @@
     "key-did-resolver": "^2.3.0",
     "level-js": "^6.1.0",
     "levelup": "^5.1.1",
-    "localstorage-level-migration": "next",
+    "localstorage-level-migration": "^0.2.0",
     "mocha": "^10.2.0",
     "mocha-headless-chrome": "^4.0.0",
     "process": "^0.11.10",
@@ -74,7 +74,7 @@
     "assert": "^2.0.0",
     "dids": "^3.4.0",
     "lru": "^3.1.0",
-    "orbit-db-keystore": "next",
+    "orbit-db-keystore": "^2.0.0",
     "path-browserify": "^1.0.1",
     "stream-browserify": "^3.0.0",
     "uint8arrays": "^4.0.3"
